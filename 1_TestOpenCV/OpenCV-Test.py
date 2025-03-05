@@ -7,7 +7,7 @@ read Image and basic image processing
 
 import cv2 #OpenCv
 import numpy as np #Numpy
-import matplotlib.pyplot as plt #charting
+#import matplotlib.pyplot as plt #charting
 
 
 # RGB
@@ -39,4 +39,4 @@ print("min = " + str(minVal) + " maxVal = " + str(maxVal) + " avg= " + str(avgVa
 # plt.show() # show images with OpenCV
 
 # write image to file system
-cv2.imwrite(outPathGray, grayImg)
+# cv2.imwrite(outPathGray, grayImg)

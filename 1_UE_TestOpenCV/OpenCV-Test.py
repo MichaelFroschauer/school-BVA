@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt #charting
 
 
 # RGB
-inPath = "./test_image/affe.png"
-outPathGray = "./test_image/gray_monkey.png"
+inPath = "./test_image/color_monkey.png"
+outPathGray = "./test_image/grey_monkey.png"
 #load with OpenCV
 img = cv2.imread(inPath)
 print("shape of image " + str(img.shape))

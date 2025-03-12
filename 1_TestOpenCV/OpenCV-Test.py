@@ -7,7 +7,7 @@ read Image and basic image processing
 
 import cv2 #OpenCv
 import numpy as np #Numpy
-#import matplotlib.pyplot as plt #charting
+import matplotlib.pyplot as plt #charting
 
 
 # RGB

@@ -62,3 +62,15 @@ Die zuvor berechneten Parameter `a` und `b` werden in die endgültigen Transform
 *   Die Rotation `rot` wird aus `a` und `b` mit folgender Formel berechnet: `rot = arctan2(b, a)`. Die Rotation `rot` wird in Bogenmaß ausgegeben und kann in Grad umgerechnet werden.
 
 Die Parameter `Tx` und `Ty` entsprechen direkt den Translationen in x- und y-Richtung.
+
+
+### 6. Ergebnis
+
+```
+Optimierte Parameter:
+  Rotation: -10.8741 Grad
+  Skalierung: 0.5489
+  Translation Tx: -2.2145
+  Translation Ty: 1.1295
+  Geschätztes Rauschen: 0.0893
+```

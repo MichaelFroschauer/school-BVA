@@ -55,8 +55,15 @@ s_opt = np.sqrt(a_opt**2 + b_opt**2)
 rot_opt = np.arctan2(b_opt, a_opt)
 rot_deg_opt = np.degrees(rot_opt)
 
+# Approximate noise
+if residuals.size > 0:
+    noise_level = np.sqrt(np.mean(residuals))
+else:
+    noise_level = 0
+
 print(f"Optimierte Parameter:")
 print(f"  Rotation: {rot_deg_opt:.4f} Grad")
 print(f"  Skalierung: {s_opt:.4f}")
 print(f"  Translation Tx: {Tx_opt:.4f}")
 print(f"  Translation Ty: {Ty_opt:.4f}")
+print(f"  Geschätztes Rauschen: {noise_level:.4f}")

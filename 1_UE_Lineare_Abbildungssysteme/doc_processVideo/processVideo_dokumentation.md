@@ -169,6 +169,8 @@ heatmapOverlayKnn = createHeatmap(cumulativeMovementKnn)
 ...
 ```
 
+<div style="page-break-after: always;"></div>
+
 ### 4.2 Testen der OpenCV Hintergrundentfernung
 Die Algorithmen wurden anhand der Bewegungserkennung und der Heatmap getestet. Dabei wurde geprüft, wie gut die verschiedenen Verfahren Bewegungen vom statischen Hintergrund trennen und wie sich unterschiedliche Schwellenwerte und Filter auf das Ergebnis auswirken.
 
@@ -219,3 +221,63 @@ Um das Rauschen weiter zu minimieren, wurden Erosion- und Dilation-Filter angewe
 * Durch geschickte Wahl von Thresholds und Filtern kann das Ergebnis weiter optimiert werden.
 * Die Heatmap zeigt, dass die Rotfärbung bei der Bewegungserkennung ('Hitze') bei MOG2 deutlich länger anhält als bei KNN – trotz identischer Parametereinstellungen. Abgesehen davon liefern beide Verfahren vergleichbare Ergebnisse. Die Dauer der 'Hitze'-Anzeige ist letztlich eine Frage der Präferenz und abhängig vom gewünschten Verhalten der Bewegungserkennung.
 
+
+<div style="page-break-after: always;"></div>
+
+## 5. Testen des eigenen Videos
+
+Für das Testvideo wurde zunächst einige Sekunden lang ein Tisch ohne Bewegung gefilmt. Dies sollte der Mittelwertberechnung für die Hintergrunderkennung helfen. Nach dieser Kalibrierungsphase wurden mehrere Karten auf den Tisch geworfen, um die Bewegungserkennung zu testen. Zusätzlich wurden die Ergebnisse der Heatmap analysiert.
+
+Die folgenden Bilder sind wie folgt angeordnet:
+* Links Oben: Eigene Implementierun
+* Rechts Oben: OpenCV KNN
+* Links Unten: Originalbild
+* Rechts Unten: OpenCV MOG2
+
+#### Bewegungserkennung der Karten
+Im statischen Bild ohne jegliche Bewegung zeigte sich sofort, dass sich die OpenCV-Algorithmen **MOG2** und **KNN** mit der Glasfläche des Tisches und den auftretenden Schatten schwer taten. Dadurch kam es zu Artefakten in der Hintergrunderkennung.  
+
+Die eigens entwickelte Methode zur Hintergrunderkennung lieferte in diesem Fall stabilere Ergebnisse. Nach dem Einwerfen der Karten wurden jedoch alle Karten von den Algorithmen zuverlässig erkannt.  
+
+![](./img2/Movement_0)
+<br/>
+<br/>
+![](./img2/Movement_2)
+
+<div style="page-break-after: always;"></div>
+
+
+
+#### Bewegungserkennung der Karten und der Hand
+
+Bei der Bewegung einer Hand im Bild zeigte sich ein umgekehrtes Verhalten:  
+Die OpenCV-Algorithmen **MOG2** und **KNN** erkannten die Handbewegung besser als die eigene Entwicklung. Der Ärmel der Hand von der eigenen Implementierung nicht korrekt detektiert, dafür gibt es nicht soviele Artefakte.
+
+![](./img2/Movement_0_hand)
+
+<div style="page-break-after: always;"></div>
+
+
+
+#### Bewegungserkennung der Karten nach Ruhephase
+
+Nach einer gewissen Ruhephase, in der keine Bewegung stattfand, zeigten sich deutliche Unterschiede zwischen den Algorithmen:  
+- Die **eigene Entwicklung** erkannte die Karten weiterhin korrekt.  
+- Die OpenCV-Algorithmen **MOG2** und **KNN** hingegen zählten die Karten nach der Ruhephase zum Hintergrund, was zu einem Informationsverlust führte.  
+
+![](./img2/Movement_3)
+
+<div style="page-break-after: always;"></div>
+
+
+
+#### Heatmap der Bewegungserkennung
+Da die OpenCV-Algorithmen mit Schatten und der Reflexion des Glases Schwierigkeiten hatten, war die daraus resultierende Heatmap nur eingeschränkt aussagekräftig.  
+
+Die eigene Entwicklung schnitt hier etwas besser ab:  
+- Die Heatmap zeigte klar, wo genau die Bewegung aufgetreten war.  
+- Dies erleichtert die spätere Analyse und Optimierung der Erkennung.  
+
+![](./img2/Heatmap_1)
+
+<div style="page-break-after: always;"></div>

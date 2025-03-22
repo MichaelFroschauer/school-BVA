@@ -60,12 +60,12 @@ while frameCount < numOfFrames and validFrameCount < numOfValidFrames:
 
     # Find the chess board corners
     # If desired number of corners or circles are found in the image then ret = true
-    ret, cornersOrCenters = cv2.findChessboardCorners(gray, CHECKERBOARD,
-                                                      cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
+    #ret, cornersOrCenters = cv2.findChessboardCorners(gray, CHECKERBOARD,
+    #                                                  cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
 
     # TODO circle detection does not work
     #ret, cornersOrCenters = cv2.findCirclesGrid(gray, GRID_SIZE, cv2.CALIB_CB_ASYMMETRIC_GRID)
-    #ret, cornersOrCenters = cv2.findCirclesGrid(gray, CHECKERBOARD, None, flags=(cv2.CALIB_CB_SYMMETRIC_GRID + cv2.CALIB_CB_CLUSTERING))
+    ret, cornersOrCenters = cv2.findCirclesGrid(gray, GRID_SIZE, None, flags=(cv2.CALIB_CB_ASYMMETRIC_GRID + cv2.CALIB_CB_CLUSTERING))
 
     #    """
     #    If desired number of corner are detected,

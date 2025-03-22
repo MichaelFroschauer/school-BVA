@@ -9,7 +9,8 @@ Created on Tue Oct 13 14:05:18 2020
 import cv2 
 import numpy as np
 
-inVideoPath = "/home/michael/school/gitclones/2_BVA/1_UE_Lineare_Abbildungssysteme/vtest.avi"
+#inVideoPath = "/home/michael/school/gitclones/2_BVA/1_UE_Lineare_Abbildungssysteme/vtest.avi"
+inVideoPath = "/home/michael/school/gitclones/2_BVA/1_UE_Lineare_Abbildungssysteme/test_video_cards.mp4"
 #inVideoPath = 0 # 0 = live camera
 
 capture = cv2.VideoCapture(inVideoPath)
@@ -18,7 +19,7 @@ if not capture.isOpened:
     exit(0)
 
 frameCount = 0
-delayInMS = 200
+delayInMS = 100
 
 # Background Subtraction mit OpenCV
 fgbgMog2 = cv2.createBackgroundSubtractorMOG2()

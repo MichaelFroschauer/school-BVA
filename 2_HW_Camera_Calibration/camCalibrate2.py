@@ -25,8 +25,7 @@ objp[0, :, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
 prev_img_shape = None
 
 # Extracting path of individual image stored in a given directory
-# outFilePath = "C:\\Users\\p21702\\Desktop\\camCalibrate_COV\\recordings\\"
-outFilePath = "/home/michael/school/gitclones/2_BVA/1_UE_Lineare_Abbildungssysteme/recordings/"
+outFilePath = "/home/michael/school/gitclones/2_BVA/2_HW_Camera_Calibration/recordings/"
 numOfFrames = 10  # frames to record
 numOfValidFrames = 1
 timeDelayInSecs = 0.8

@@ -9,8 +9,8 @@ Created on Tue Oct 13 14:05:18 2020
 import cv2 
 import numpy as np
 
-#inVideoPath = "/home/michael/school/gitclones/2_BVA/1_UE_Lineare_Abbildungssysteme/vtest.avi"
-inVideoPath = "/home/michael/school/gitclones/2_BVA/1_UE_Lineare_Abbildungssysteme/test_video_cards.mp4"
+#inVideoPath = "/home/michael/school/gitclones/2_BVA/3_HW_Video_Movement_Detection/vtest.avi"
+inVideoPath = "/home/michael/school/gitclones/2_BVA/3_HW_Video_Movement_Detection/test_video_cards.mp4"
 #inVideoPath = 0 # 0 = live camera
 
 capture = cv2.VideoCapture(inVideoPath)

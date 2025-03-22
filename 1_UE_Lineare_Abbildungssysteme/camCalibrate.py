@@ -25,11 +25,12 @@ prev_img_shape = None
 
 # Extracting path of individual image stored in a given directory
 #outFilePath = "C:\\Users\\p21702\\Desktop\\camCalibrate_COV\\recordings\\"
-outFilePath = "./recordings/"
+outFilePath = "/home/michael/school/gitclones/2_BVA/1_UE_Lineare_Abbildungssysteme/recordings/"
 numOfFrames = 10 #frames to record
 timeDelayInSecs = 0.8 
 
-inVideoPath = 0
+#inVideoPath = 0 # integrated webcam
+inVideoPath = 2 # external webcam
 
 capture = cv2.VideoCapture(inVideoPath)
 if not capture.isOpened:

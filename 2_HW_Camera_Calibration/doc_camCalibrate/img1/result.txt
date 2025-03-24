@@ -1,0 +1,22 @@
+ checkerboard or circle grid found
+CAMERA CALIBRATED!!! ERR=0.4226299304125451
+Camera matrix : 
+
+[[1.09164418e+03 0.00000000e+00 3.38472539e+02]
+ [0.00000000e+00 1.04504657e+03 1.37211886e+02]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+lens distortion : 
+
+[[-1.08087431e+00  4.43422984e+00  1.43916587e-01  1.97636482e-04
+  -1.79703324e+01]]
+extrinsic positions for ALL detected shapes
+ROTATION rvecs : 
+
+(array([[-0.07125479],
+       [ 0.08315023],
+       [ 1.59732734]]),)
+TRANSLATION tvecs : 
+
+(array([[ 3.15585403],
+       [ 1.93264747],
+       [27.83891718]]),)

@@ -10,73 +10,86 @@ import glob
 import time
 
 # Defining the dimensions of checkerboard
-CHECKERBOARD = (6,9)
+CHECKERBOARD = (6, 9)
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 # Creating vector to store vectors of 3D points for each checkerboard image
 objpoints = []
 # Creating vector to store vectors of 2D points for each checkerboard image
-imgpoints = [] 
+imgpoints = []
 
 # Defining the world coordinates for 3D points
 objp = np.zeros((1, CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
-objp[0,:,:2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
+objp[0, :, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
 prev_img_shape = None
 
 # Extracting path of individual image stored in a given directory
 outFilePath = "/home/michael/school/gitclones/2_BVA/2_HW_Camera_Calibration/recordings/"
-numOfFrames = 10 #frames to record
-timeDelayInSecs = 0.8 
+numOfFrames = 10  # frames to record
+numOfValidFrames = 10
+timeDelayInSecs = 0.8
 
-#inVideoPath = 0 # integrated webcam
-inVideoPath = 2 # external webcam
+inVideoPath = 0 # integrated webcam
+#inVideoPath = 2  # external webcam
+
+
+def showAndSaveImg(img, filePath, fileName):
+    cv2.imwrite(filePath + fileName, img)
+    cv2.imshow(fileName, img)
+
 
 capture = cv2.VideoCapture(inVideoPath)
 if not capture.isOpened:
-    #print('unable to open video: ' + args.input)
+    # print('unable to open video: ' + args.input)
     exit(0)
 
 frameCount = 0
+validFrameCount = 0
 
-while frameCount < numOfFrames:
+while frameCount < numOfFrames and validFrameCount < numOfValidFrames:
     ret, frame = capture.read()
     if frame is None:
         break
 
+    frameCount = frameCount + 1
+
     frameCopy = frame.copy()
     gray = cv2.cvtColor(frameCopy, cv2.COLOR_BGR2GRAY)
-    filePathToWrite =  outFilePath + 'img' + str(frameCount) + ".png"
-    cv2.imwrite(filePathToWrite, frameCopy)
-    frameCount = frameCount + 1
-    # Find the chess board corners
-    # If desired number of corners are found in the image then ret = true
-    ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
-    
-#    """
-#    If desired number of corner are detected,
-#    we refine the pixel coordinates and display 
-#    them on the images of checker board
-#    """
-    
-    if ret == True:
-      print('checkerboard found')  
-      objpoints.append(objp)
-      # refining pixel coordinates for given 2d points.
-      corners2 = cv2.cornerSubPix(gray, corners, (11,11),(-1,-1), criteria)        
-      imgpoints.append(corners2)
 
-      # Draw and display the corners
-      frameCopy = cv2.drawChessboardCorners(frameCopy, CHECKERBOARD, corners2, ret)
-      filePathToWrite =  outFilePath + 'imgCB' + str(frameCount) + ".png"
-      cv2.imwrite(filePathToWrite, frameCopy)
-      cv2.imshow('img', frameCopy)
-    else :
-      print('checkerboard NOT found') 
+    # Find the chess board corners
+    # If desired number of corners or circles are found in the image then ret = true
+    ret, cornersOrCenters = cv2.findChessboardCorners(gray, CHECKERBOARD,
+                                                      cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
+
+    # TODO circle detection does not work
+    #ret, cornersOrCenters = cv2.findCirclesGrid(gray, CHECKERBOARD, cv2.CALIB_CB_ASYMMETRIC_GRID)
+    #ret, cornersOrCenters = cv2.findCirclesGrid(gray, CHECKERBOARD, None, flags=(cv2.CALIB_CB_ASYMMETRIC_GRID + cv2.CALIB_CB_CLUSTERING))
+
+    #    """
+    #    If desired number of corner are detected,
+    #    we refine the pixel coordinates and display
+    #    them on the images of checker board
+    #    """
+
+    if ret == True:
+        print('checkerboard or circle grid found')
+
+        objpoints.append(objp)
+        # refining pixel coordinates for given 2d points.
+        corners2 = cv2.cornerSubPix(gray, cornersOrCenters, (11, 11), (-1, -1), criteria)
+        imgpoints.append(corners2)
+
+        # Draw and display the corners
+        frameCopyCB = frameCopy.copy()
+        frameCopyCB = cv2.drawChessboardCorners(frameCopyCB, CHECKERBOARD, corners2, ret)
+
+        showAndSaveImg(frameCopy, outFilePath, f'img{str(validFrameCount)}.png')
+        showAndSaveImg(frameCopyCB, outFilePath, f'imgCB{str(validFrameCount)}.png')
+        validFrameCount = validFrameCount + 1
+    else:
+        print('checkerboard or circle grid NOT found')
     time.sleep(timeDelayInSecs)
 
-cv2.destroyAllWindows()
-
-h,w = frameCopy.shape[:2]
 
 """
 Performing camera calibration by 
@@ -86,12 +99,11 @@ detected corners (imgpoints)
 """
 ret_RMSerr, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
-#RMS err should be between 0.1 and 1 pixel
-if ret_RMSerr < 2.0 :
-  print('CAMERA CALIBRATED!!! ERR=' + str(ret_RMSerr))   
-else :
-  print('camera calibration FAILED!! ERR=' + str(ret_RMSerr)) 
-
+# RMS err should be between 0.1 and 1 pixel
+if ret_RMSerr < 2.0:
+    print('CAMERA CALIBRATED!!! ERR=' + str(ret_RMSerr))
+else:
+    print('camera calibration FAILED!! ERR=' + str(ret_RMSerr))
 
 print("Camera matrix : \n")
 print(mtx)
@@ -102,3 +114,38 @@ print("ROTATION rvecs : \n")
 print(rvecs)
 print("TRANSLATION tvecs : \n")
 print(tvecs)
+
+
+
+
+# Applying distortion correction to a test image
+image_files = sorted(glob.glob(f"{outFilePath}/img[0-9]*.png"))
+
+for idx, test_img_path in enumerate(image_files):
+
+    test_img = cv2.imread(test_img_path)
+    h, w = test_img.shape[:2]
+
+    # Correction of the distortion
+    testImgCopy = test_img.copy()
+    undistorted_img = cv2.undistort(testImgCopy, mtx, dist, None, mtx)
+
+    showAndSaveImg(undistorted_img, outFilePath, f'img{idx}_undistorted.png')
+
+    # Visualization of the distortion by vector field
+    map_x, map_y = cv2.initUndistortRectifyMap(mtx, dist, None, mtx, (w, h), cv2.CV_32FC1)
+    Y, X = np.indices((h, w))
+    flow = np.dstack((map_x - X, map_y - Y))
+
+    # Draw vector field on image
+    step = 20  # Distance of the arrows
+    for y in range(0, h, step):
+        for x in range(0, w, step):
+            pt1 = (x, y)
+            pt2 = (int(map_x[y, x]), int(map_y[y, x]))
+            cv2.arrowedLine(test_img, pt1, pt2, (0, 0, 255), 1, tipLength=0.3)
+
+    showAndSaveImg(test_img, outFilePath, f'img{idx}_distortion_vector_field.png')
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()

@@ -1,0 +1,67 @@
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+CAMERA CALIBRATED!!! ERR=0.1833059731113223
+Camera matrix : 
+
+[[778.20661393   0.         347.81412349]
+ [  0.         774.60102202 240.52218348]
+ [  0.           0.           1.        ]]
+lens distortion : 
+
+[[ 7.12806747e-02 -7.96084701e+00  2.92066493e-02 -7.44889508e-04
+   1.10567908e+02]]
+extrinsic positions for ALL detected shapes
+ROTATION rvecs : 
+
+(array([[-0.15984276],
+       [-0.21226258],
+       [-1.48685568]]), array([[-0.16644774],
+       [-0.21656976],
+       [-1.4997115 ]]), array([[-0.16261684],
+       [-0.21108978],
+       [-1.51057862]]), array([[-0.1467729 ],
+       [-0.19787478],
+       [-1.52276303]]), array([[-0.12868373],
+       [-0.18894832],
+       [-1.53820505]]), array([[-0.04901104],
+       [-0.11531135],
+       [-1.56630746]]), array([[-0.06635265],
+       [-0.10270774],
+       [-1.54431713]]), array([[-0.10467613],
+       [-0.09827576],
+       [-1.53311982]]), array([[-0.15418697],
+       [-0.14391865],
+       [-1.51762911]]), array([[-0.15061594],
+       [-0.1412935 ],
+       [-1.52016295]]))
+TRANSLATION tvecs : 
+
+(array([[-4.35156995],
+       [ 3.46914406],
+       [27.37719825]]), array([[-4.34298124],
+       [ 3.37984329],
+       [27.32200982]]), array([[-4.32829966],
+       [ 3.32984674],
+       [27.23571209]]), array([[-4.29596195],
+       [ 3.31859641],
+       [27.13243932]]), array([[-4.24604078],
+       [ 3.37932514],
+       [26.99816412]]), array([[-3.63967149],
+       [ 4.38685627],
+       [27.04526026]]), array([[-3.53378084],
+       [ 4.32474222],
+       [27.03087917]]), array([[-3.5254092 ],
+       [ 4.27321266],
+       [27.10755984]]), array([[-3.16792202],
+       [ 3.75169808],
+       [27.9504706 ]]), array([[-3.01434547],
+       [ 3.52428403],
+       [28.20657397]])) 

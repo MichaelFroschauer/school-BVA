@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+
+% ----------------------------------------------------------------------------------------
+% -- Imports
+% ----------------------------------------------------------------------------------------
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{lastpage}
+\usepackage[a4paper, left=2cm, right=2cm, top=2.5cm, bottom=3cm]{geometry}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{fancyvrb}
+\usepackage{pdfpages}
+\usepackage{svg}
+\usepackage[T1]{fontenc}
+\usepackage[german]{babel}
+\usepackage{minted}
+\usepackage{amsmath}
+%\usepackage[hashEnumerators,smartEllipses,fencedCode,hybrid]{markdown}
+
+\input{highlighting}
+
+% ----------------------------------------------------------------------------------------
+% -- Header & Footer
+% ----------------------------------------------------------------------------------------
+\pagestyle{fancy}
+\setlength\headheight{39pt} 
+
+% Header
+\lhead{\leftmark}
+\chead{}
+\rhead{\includegraphics[height=35pt]{./img/logo.png}}
+\renewcommand{\headrulewidth}{0.1pt} %obere Trennlinie
+
+% Footer
+%\lfoot{FH-Hagenberg $|$ Software Engineering $|$ Semester 1 $|$ Froschauer Michael}
+\lfoot{FH-Hagenberg $|$ Software Engineering $|$ Froschauer Michael}
+\cfoot{}
+\rfoot{Seite \thepage / \pageref{LastPage}}
+\renewcommand{\footrulewidth}{0.1pt} %untere Trennlinie
+
+
+% ----------------------------------------------------------------------------------------
+% -- Begin of the document
+% ----------------------------------------------------------------------------------------
+\begin{document}
+
+% Titelpage (--> hier die Angabe)
+%\includepdf[pages={1-1}]{../AngabeUE01_1.pdf}
+%\begin{titlepage}
+%	\title{ADE1\_BB: Elementare Algorithmen und Datenstrukturen - Übung 2} 
+%	\author{Froschauer Michael - S2110307010} 
+%	\date{\today} 
+%	\maketitle
+%	\thispagestyle{empty}
+%	\newpage
+%\end{titlepage}
+
+% Table of Contents (--> für die Abgabe kein Table of Contentes)
+%\tableofcontents
+%\thispagestyle{empty}
+%\newpage
+
+% Content
+\include{./sections/Nr_1}
+% \include{./sections/Nr_2}
+
+\end{document}

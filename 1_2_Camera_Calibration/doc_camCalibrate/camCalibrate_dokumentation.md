@@ -11,41 +11,51 @@ Die Kamera-Kalibrierung soll mit OpenCV durchgeführt werden. Dabei wird ein Sch
 
    - Bilder eines Schachbrettmusters wurden mit sowohl mit einer externen Webcam als auch mit der internet Notebook Webcam aufgenommen.
    - Tests wurden sowohl mit einem möglichst optimalen Testbild als auch mit einem absichtlich verzerrten Schachbrettmuster durchgeführt, um die Robustheit der Implementierung zu überprüfen.
+   - Zusätzlich wurde die Kalibierung mit einem asynchronen Kreisraster getestet.
 
-<div style="display: flex; justify-content: center; gap: 20px;">
+<div style="display: flex; justify-content: center; gap: 0px;">
     <figure>
         <img src="./img/img0.png" width="500"/>
-        <figcaption style="text-align: center;">Abbildung 1: Schachbrettmuster (optimal)</figcaption>
+        <figcaption style="">Schachbrettmuster (optimal)</figcaption>
     </figure>
     <figure>
         <img src="./img1/img0.png" width="500"/>
-        <figcaption style="text-align: center;">Abbildung 2: Schachbrettmuster (verzerrt)</figcaption>
+        <figcaption style="">Schachbrettmuster (verzerrt)</figcaption>
     </figure>
 </div>
+<figure>
+     <img src="./img3/img0.png" width="260"/>
+     <figcaption style="">Asymmetrischer Kreisraster</figcaption>
+</figure>
 
 <div style="page-break-after: always;"></div>
 
 #### 2. Erkennung des Musters:
 
    - Die Funktion `cv2.findChessboardCorners` wurde verwendet, um die Ecken des Schachbretts zu identifizieren.
-   - Alternativ wurde `cv2.findCirclesGrid` für die Erkennung eines asymetrischen Kreisrasters getestet, jedoch leider ohne Erfolg, das Testbild wurde bei mir nie richtig erkannt.
+        - Die Ecken des Schachbrettmusters wurden hier, sowohl beim optimalen Bild als auch beim bewusst verzerrten Bild sehr gut und konsistent erkannt.
+   - Alternativ wurde `cv2.findCirclesGrid` für die Erkennung eines asymetrischen Kreisrasters getestet.
+        - Um ein Testbild mit asymetrischen Kreisraster durchzuführen, ist zusätzlich ein `BlobDetector` nötig. Dieser findet die Kreise im Testbild.
+        - Die Ergebnisse mit dieser Variante sind merklich schlechter. Man erkennt auch direkt am Testbild auf welchem die Kreismittelpunkte eingezeichnet sind, dass diese variiren. Da der Kreismittelpunkt nicht optimal erkannt wird, kann auch die Kamerakalibiereung nicht optimal funktionieren.
+   - Die Auswahl der Testvariante (Schachbrett oder Kreismuster) kann über die Variable `checkerboard_test_image` gesteuert werden.
 
 <div style="display: flex; justify-content: center; gap: 20px;">
     <figure>
         <img src="./img/imgCB0.png" width="500"/>
-        <figcaption style="text-align: center;">Abbildung 3: Schachbrettmuster (optimal)</figcaption>
+        <figcaption style="">Schachbrettmuster (optimal) mit erkannten Eckpunkten</figcaption>
     </figure>
     <figure>
         <img src="./img1/imgCB0.png" width="500"/>
-        <figcaption style="text-align: center;">Abbildung 4: Schachbrettmuster (verzerrt)</figcaption>
+        <figcaption style="">Schachbrettmuster (verzerrt) mit erkannten Eckpunkten</figcaption>
     </figure>
 </div>
 
 <figure>
-     <img src="./img3/img0.png" width="300"/>
-     <figcaption style="">Abbildung 5: Asymmetrischer Kreisraster</figcaption>
- </figure>
+     <img src="./img3/imgCB0.png" width="260"/>
+     <figcaption style="">Asymmetrischer Kreisraster mit erkannten Mittelpunkten</figcaption>
+</figure>
 
+<div style="page-break-after: always;"></div>
 
 #### 3. Berechnung der Kameraparameter:
 
@@ -60,9 +70,13 @@ Die Kamera-Kalibrierung war erfolgreich. Mehrere Bilder würden zu einer genauer
 
 *(Im Anhang befinden sich dann die Tests und Ergebnisse mit mehreren Bildern und verschiedenen Kameras.)*
 
-#### 1. Kamerakalibierung für das optimale Bild:
+#### 1. Kamerakalibierung für das optimale Schachbrettmuster Testbild:
+
 Die berechneten Parameter sind für das optimale (nicht absichtlich verzerrte) Bild:    
 **Root Mean Square Error (RMS):** 0.07838    
+
+Der RMS-Wert von 0.07838 bedeutet, dass der Fehler zwischen den geschätzten und den tatsächlichen Werten im Durchschnitt bei 0.07838 liegt. Dieser Wert ist relativ gering und deutet auf eine hohe Genauigkeit hin. Werte über 2.0 würden darauf hindeuten, dass die Kamera nicht mehr ausreichend kalibriert ist.
+
 **Kameramatrix:**    
 ```
 [[2223.97554          0.0   300.046808]
@@ -72,11 +86,13 @@ Die berechneten Parameter sind für das optimale (nicht absichtlich verzerrte) B
 
 Die Kameramatrix gibt an, wie die Bildkoordinaten mit der realen Szene zusammenhängen. Sie enthält die Brennweitenwerte und den optischen Mittelpunkt.
 
-**Erklärung der Werte:**
+Erklärung der Werte:
 - **2223.97554** → Brennweite in Pixeln entlang der X-Achse  
 - **2221.66388** → Brennweite in Pixeln entlang der Y-Achse  
 - **300.046808** → X-Koordinate des optischen Zentrums (Bildmitte)  
 - **217.340798** → Y-Koordinate des optischen Zentrums (Bildmitte)  
+
+<div style="page-break-after: always;"></div>
 
 **Verzerrungskoeffizienten:**    
 ```
@@ -111,7 +127,12 @@ Diese Parameter beschreiben die Lage der Kamera relativ zur aufgenommenen Szene.
 - **Translation (T)** → Gibt an, wo die Kamera relativ zur Szene positioniert ist.  
 
 
-#### 2. Kamerakalibierung für das bewusst verzerrte Bild:
+---
+
+#### 2. Kamerakalibierung für das bewusst verzerrte Schachbrettmuster Testbild:
+
+Die Beschreibung der erfassten Werte wurde bereits im ersten Testbild (optimales Schachbrettmuster-Testbild) vorgenommen und wird für dieses Testbild nicht erneut wiederholt.
+
 Die berechneten Parameter sind für das verzerrte Bild:    
 **Root Mean Square Error (RMS):** 0.422629    
 **Kameramatrix:**    
@@ -121,13 +142,10 @@ Die berechneten Parameter sind für das verzerrte Bild:
  [       0.0          0.0          1.0]]
 ```
 
-Die Kameramatrix gibt an, wie die Bildkoordinaten mit der realen Szene zusammenhängen. Sie enthält die Brennweitenwerte und den optischen Mittelpunkt.
-
 **Verzerrungskoeffizienten:**    
 ```
 [[-1.08087431   4.43422984   0.14391658   0.0001976364   -17.9703324]]
 ```
-Diese Koeffizienten beschreiben die Verzerrungseffekte der Linse. Ein hoher Wert zeigt eine starke Verzerrung an.
 
 **Extrinsische Parameter:**    
 ```
@@ -141,9 +159,44 @@ TRANSLATION:
  [ 1.93264747],
  [27.83891718]]
 ```
-Diese Parameter beschreiben die Lage der Kamera relativ zur aufgenommenen Szene.
 
 ---
+
+#### 3. Kamerakalibierung für das Kreismuster Testbild:
+Die Beschreibung der erfassten Werte wurde bereits im ersten Testbild (optimales Schachbrettmuster-Testbild) vorgenommen und wird für dieses Testbild nicht erneut wiederholt.
+
+Die berechneten Parameter sind für das Kreismuster Bild:    
+Hier lässt sich direkt erkennen, dass die Erkennung nicht gut funktioniert hat, der RMS Wert ist zu hoch.     
+**Root Mean Square Error (RMS):** 18.79316338740906
+
+**Kameramatrix:**    
+```
+[[ 1444.92715         0.0  322.177040]
+ [        0.0  5692.08685 -45.0000861]
+ [        0.0         0.0         1.0]]
+```
+
+**Verzerrungskoeffizienten:**    
+```
+[[-1.08087431   4.43422984   0.14391658   0.0001976364   -17.9703324]]
+```
+
+**Extrinsische Parameter:**    
+```
+ROTATION:
+[[-0.07125479],
+ [ 0.08315023],
+ [ 1.59732734]]
+ 
+TRANSLATION:
+[[ 3.15585403],
+ [ 1.93264747],
+ [27.83891718]]
+```
+
+---
+
+<div style="page-break-after: always;"></div>
 
 ## Verzerrungskorrektur und Visualisierung
 
@@ -153,7 +206,8 @@ Mit den ermittelten Kalibrierungsergebnissen soll eine Verzerrungskorrektur ange
 
 #### 1. Anwenden der Verzerrungskorrektur:
 
-   - Mit der Funktion `cv2.undistort` wurde die Korrektur auf Testbilder angewendet.
+   - Mit der Funktion `cv2.undistort` wurde die Korrektur auf die Testbilder angewendet.
+   - Es lässt sich gut erkennen, dass die Schachbrettmuster sehr gut funktionieren. Selbst bei bewusst verzerrten Schachbrettmustern lässt sich aufgrund des korrekt ausgerichteten Musters erkennen, dass die Kalibrierung erfolgreich war. Beim Kreisraster hingegen war die Kalibrierung aufgrund der nicht richtig erkannten Mittelpunkte weniger erfolgreich.
    - Die korrigierten Bilder wurden gespeichert und angezeigt.
 
 Die Verzerrungskorrektur konnte erfolgreich durchgeführt werden.
@@ -161,13 +215,19 @@ Die Verzerrungskorrektur konnte erfolgreich durchgeführt werden.
 <div style="display: flex; justify-content: center; gap: 20px;">
     <figure>
         <img src="./img/img0_undistorted.png" width="500"/>
-        <figcaption style="text-align: center;">Abbildung 6: Schachbrettmuster (optimal) korrigiert</figcaption>
+        <figcaption style="text-align: center;">Schachbrettmuster (optimal) korrigiert</figcaption>
     </figure>
     <figure>
         <img src="./img1/img0_undistorted.png" width="500"/>
-        <figcaption style="text-align: center;">Abbildung 7: Schachbrettmuster (verzerrt) korrigiert </figcaption>
+        <figcaption style="text-align: center;">Schachbrettmuster (verzerrt) korrigiert </figcaption>
     </figure>
 </div>
+<figure>
+     <img src="./img3/img0_undistorted.png" width="260"/>
+     <figcaption style="">Asymmetrischer Kreisraster korrigiert</figcaption>
+</figure>
+
+<div style="page-break-after: always;"></div>
 
 #### 2. Visualisierung der Verzerrung:
 
@@ -180,14 +240,18 @@ Die Visualisierung mit einem Vektorfeld zeigt deutlich, wie stark die Verzerrung
 <div style="display: flex; justify-content: center; gap: 20px;">
     <figure>
         <img src="./img/img0_distortion_vector_field.png" width="500"/>
-        <figcaption style="text-align: center;">Abbildung 8: Schachbrettmuster (optimal) Vektorfeld</figcaption>
+        <figcaption style="text-align: center;">Schachbrettmuster (optimal) Vektorfeld</figcaption>
     </figure>
     <figure>
         <img src="./img1/img0_distortion_vector_field.png" width="500"/>
-        <figcaption style="text-align: center;">Abbildung 9: Schachbrettmuster (verzerrt) Vektorfeld </figcaption>
+        <figcaption style="text-align: center;">Schachbrettmuster (verzerrt) Vektorfeld </figcaption>
     </figure>
 </div>
+<figure>
+     <img src="./img3/img0_distortion_vector_field.png" width="260"/>
+     <figcaption style="">Asymmetrischer Kreisraster Vektorfeld</figcaption>
+</figure>
 
 
 ## Anmerkung Tests
-Im ZIP-Anhang befinden sich neben der Implementierung vier Testläufe, die jeweils ein optimales Testbild (Schachbrettmuster) und ein absichtlich verzerrtes Testbild beinhalten. Diese Tests wurden mit zwei verschiedenen Kameras durchgeführt: der internen Laptop-Webcam und einer externen Webcam. In jedem Ordner ist außerdem eine Datei namens „results.txt“ enthalten, die die berechneten Kamerakalibrierungswerte für jeden Testlauf dokumentiert.
+Im ZIP-Anhang befinden sich neben der Implementierung fünf Testläufe, die ein optimales Testbild mit Schachbrettmuster, ein absichtlich verzerrtes Testbild mit Schachbrettmuster und die Tests mit dem asymetrischen Kreisraster beinhalten. Diese Tests wurden mit zwei verschiedenen Kameras durchgeführt: der internen Laptop-Webcam und einer externen Webcam. In jedem Ordner ist außerdem eine Datei namens „results.txt“ enthalten, die die berechneten Kamerakalibrierungswerte für jeden Testlauf dokumentiert.

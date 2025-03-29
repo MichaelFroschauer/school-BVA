@@ -5,6 +5,7 @@ import sys
 #from: https://github.com/opencv/opencv/blob/master/samples/python/floodfill.py
 
 inFilePath = "./test_image/color_monkey.jpg"
+#inFilePath = "./test_image/ball_5.jpg"
 
 class App():
 
@@ -35,7 +36,15 @@ class App():
 
 
     def run(self):
-        
+
+        # scale_percent = 0.3
+        # image_to_scale = cv2.imread(inFilePath)
+        # width = int(image_to_scale.shape[1] * scale_percent)
+        # height = int(image_to_scale.shape[0] * scale_percent)
+        # new_size = (width, height)
+        # resized_image = cv2.resize(image_to_scale, new_size, interpolation=cv2.INTER_AREA)
+        # self.img = resized_image
+
         self.img = cv2.imread(inFilePath)
 
         if self.img is None:

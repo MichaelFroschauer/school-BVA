@@ -1,0 +1,67 @@
+ checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+checkerboard or circle grid found
+camera calibration FAILED!! ERR=18.79316338740906
+Camera matrix : 
+
+[[ 1.44492715e+03  0.00000000e+00  3.22177040e+02]
+ [ 0.00000000e+00  5.69208685e+03 -4.50000861e+01]
+ [ 0.00000000e+00  0.00000000e+00  1.00000000e+00]]
+lens distortion : 
+
+[[ 2.24428378e+01 -3.03834643e+03  1.79226211e-01 -4.51158428e-02
+   9.83446856e+04]]
+extrinsic positions for ALL detected shapes
+ROTATION rvecs : 
+
+(array([[ 0.79188928],
+       [ 0.79014105],
+       [-1.41456197]]), array([[ 0.79418568],
+       [ 0.78604293],
+       [-1.41066702]]), array([[ 0.79348585],
+       [ 0.78576869],
+       [-1.41104047]]), array([[ 0.79124124],
+       [ 0.78742036],
+       [-1.41491477]]), array([[ 0.78826285],
+       [ 0.79011386],
+       [-1.42079084]]), array([[ 0.78529435],
+       [ 0.79438028],
+       [-1.41978108]]), array([[ 0.78583182],
+       [ 0.79478779],
+       [-1.42298283]]), array([[ 0.78769783],
+       [ 0.78997654],
+       [-1.4225449 ]]), array([[ 0.7873624 ],
+       [ 0.78843694],
+       [-1.4221289 ]]), array([[ 0.77033463],
+       [ 0.80129943],
+       [-1.43264272]]))
+TRANSLATION tvecs : 
+
+(array([[-5.03207847],
+       [ 2.55088894],
+       [38.39311983]]), array([[-5.042473  ],
+       [ 2.53863557],
+       [38.35966074]]), array([[-5.03857073],
+       [ 2.53905885],
+       [38.34974156]]), array([[-5.01529673],
+       [ 2.55376423],
+       [38.358493  ]]), array([[-4.98154459],
+       [ 2.57904365],
+       [38.38687575]]), array([[-5.04715747],
+       [ 2.57095355],
+       [38.43119379]]), array([[-5.00159573],
+       [ 2.59205801],
+       [38.41197763]]), array([[-4.97364788],
+       [ 2.63869596],
+       [38.40595521]]), array([[-4.97668887],
+       [ 2.63257118],
+       [38.36328668]]), array([[-5.04767666],
+       [ 2.70936392],
+       [38.52167889]]))

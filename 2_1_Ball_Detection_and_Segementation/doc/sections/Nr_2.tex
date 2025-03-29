@@ -1,0 +1,21 @@
+\section{Lokalisierung von Bällen im Bild}
+
+Für die Lokalisierung von Bällen wurde \texttt{YOLO11} von Ultralytics als Python-Bibliothek verwendet. \texttt{YOLO11} (You Only Look Once) ist ein Modell zur Objekterkennung, das in der Lage ist, Objekte in Bildern zu klassifizieren und zu lokalisieren. Es bietet eine einfache Implementierung und ermöglicht sowohl die Nutzung vortrainierter Modelle als auch das Training eigener Modelle. In unserem Fall wurde das vortrainierte Modell verwendet, das bereits in der Lage ist, den Klassentyp \texttt{sports ball} zu erkennen, was für unsere Anwendung ausreichend ist.
+
+Die Verwendung sieht wie folgt aus:
+
+\begin{minted}[linenos]{python}
+yolo_results = model(image_path)
+\end{minted}
+
+Dabei gibt \texttt{model(image\_path)} die Objekte im Bild zurück, zusammen mit den Koordinaten der Rechtecke (Bounding-Boxes), die die erkannten Objekte umschließen. Da \texttt{YOLO11} jedoch eine gewisse Rechenzeit benötigt, wurden die Ergebnisse für jedes Bild in einer Ergebnisdatei serialisiert. Diese serialisierten Ergebnisse können später erneut verwendet werden, ohne dass das Modell die Objekterkennung für dasselbe Bild wiederholen muss.
+
+Um die Ergebnisse für ein Bild zu verarbeiten und die Bälle zu lokalisieren, wird folgender Aufruf verwendet:
+
+\begin{minted}[linenos]{python}
+image_bounding_box, ball_boxes = process_detections(image_bounding_box, yolo_results, class_names)
+\end{minted}
+
+In dieser selbst implementierten Funktion wird das Bild zusammen mit den YOLO Ergebnissen übergeben. Es wird ein Bild zurückgegeben, auf dem die erkannten Objekte markiert sind. Zusätzlich wird eine Liste erzeugt, die nur die Rechtecke enthält, in denen Bälle erkannt wurden.
+
+Mit dieser Grundlage kann nun die Segmentierung der Bälle in den erkannten Bereichen beginnen.

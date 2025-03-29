@@ -1,0 +1,37 @@
+\section{Statistische Analyse der Abweichung vom Schwerpunkt}
+
+Für diese Analyse werden die von YOLO erstellten bounding boxes und die von der Segmentierung gefundenen Bälle analysiert und der Schwerpunkt berechnet. Anschließend wird der Unterschied des Schwerpunkts zwischen beiden Methoden analysiert und statistisch ausgewertet.
+
+Schwerpunkt YOLO bounding box:
+x = width_box / 2
+y = height_box / 2
+
+
+Schwerpunkt Segmentierung:
+Für die Berechnung der Schwerpunkt der Segmentierung wurde die `HoughCircles` Implementierung verwendet, da diese die besten Ergebnisse lieferte. Diese Implementierun gibt bereits den Schwerpunkt des erkannten Kreises zurück, darum ist hier keine weitere Berechnung notwendig.
+
+
+## Berechnung:
+Hierfür wird ... (ganz kurze Beschreibung des Codes, dieser muss nicht ganz eingefügt werden):
+
+```
+for i in range(len(yolo_boxes)):
+x_min, y_min, x_max, y_max = yolo_boxes[i]
+w = x_max - x_min
+h = y_max - y_min
+yolo_centroid = (w / 2, h / 2)
+
+hough_x, hough_y, _ = hough_circles[i]
+hough_centroid = (float(hough_x), float(hough_y))
+
+# Berechnung der euklidischen Distanz zwischen den beiden Methoden
+distance = np.linalg.norm(np.array(yolo_centroid) - np.array(hough_centroid))
+distances.append(distance)
+
+print(f"Bild {i + 1}: YOLO-Centroid {yolo_centroid}, Hough-Centroid {hough_centroid}, Abstand: {distance:.2f}")
+
+# Statistische Analyse
+mean_error = np.mean(distances)
+std_dev = np.std(distances)
+median_error = np.median(distances)
+```

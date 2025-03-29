@@ -120,7 +120,7 @@ def create_ball_mask_with_kmeans(image, ball_box, k=3, threshold_value=100):
     # Convert to grayscale for thresholding
     gray_segmented = cv2.cvtColor(image_segmented, cv2.COLOR_BGR2GRAY)
 
-    # Apply adaptive thresholding for better segmentation of shadows
+    # Apply thresholding
     _, ball_mask = cv2.threshold(gray_segmented, threshold_value, 255, cv2.THRESH_BINARY)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
@@ -136,7 +136,6 @@ def create_ball_mask_2(image, ball_box, k=3, threshold_value=100):
     image_ball_box = image[y_min:y_max, x_min:x_max].copy()
 
     img_gray = cv2.cvtColor(image_ball_box, cv2.COLOR_BGR2GRAY)
-    # Apply Gaussian Blur for better K-Means results
     kernel_size = (17, 17)
     blurred_image = cv2.GaussianBlur(img_gray, kernel_size, 0)
 
@@ -155,6 +154,36 @@ def create_ball_mask_2(image, ball_box, k=3, threshold_value=100):
     # cv2.imshow("ball_mask", ball_mask)
 
     return blurred_image
+
+
+
+def create_ball_mask_3(image, ball_box):
+    x_min, y_min, x_max, y_max = ball_box
+    image_ball_box = image[y_min:y_max, x_min:x_max].copy()
+
+    gray = cv2.cvtColor(image_ball_box.copy(), cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+
+    equalized = cv2.equalizeHist(blurred)
+    cv2.imshow("equalized", equalized)
+
+    adjusted = cv2.convertScaleAbs(equalized, alpha=1.5, beta=30)
+    cv2.imshow("adjusted", adjusted)
+
+    gray = cv2.cvtColor(image_ball_box.copy(), cv2.COLOR_BGR2GRAY)
+    gray_blurred = cv2.GaussianBlur(gray, (15, 15), 0)
+    circles = cv2.HoughCircles(gray_blurred, cv2.HOUGH_GRADIENT, dp=1.2, minDist=30, param1=50, param2=30, minRadius=10, maxRadius=300)
+
+    ball_mask = np.zeros_like(image_ball_box)
+
+    detected_circles = []
+    if circles is not None:
+        circles = np.round(circles[0, :]).astype("int")
+        for (x, y, r) in circles:
+            cv2.circle(ball_mask, (x, y), r, (255, 255, 255), -1)
+            detected_circles.append((x, y, r))
+
+    return ball_mask, detected_circles
 
 
 def create_ball_mask(image, ball_box):
@@ -251,3 +280,40 @@ def add_bounding_box(image, bbox, label=""):
         cv2.putText(image_with_bbox, label, text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     return image_with_bbox
+
+
+
+def create_statistical_centroid_analysis(yolo_boxes, hough_circles):
+    distances = []
+
+    for i in range(len(yolo_boxes)):
+        x_min, y_min, x_max, y_max = yolo_boxes[i]
+        w = x_max - x_min
+        h = y_max - y_min
+        yolo_centroid = (w / 2, h / 2)
+
+        hough_x, hough_y, _ = hough_circles[i]
+        hough_centroid = (float(hough_x), float(hough_y))
+
+        # Berechnung der euklidischen Distanz zwischen den beiden Methoden
+        distance = np.linalg.norm(np.array(yolo_centroid) - np.array(hough_centroid))
+        distances.append(distance)
+
+        print(f"Bild {i + 1}: YOLO-Centroid {yolo_centroid}, Hough-Centroid {hough_centroid}, Abstand: {distance:.2f}")
+
+    # Statistische Analyse
+    mean_error = np.mean(distances)
+    std_dev = np.std(distances)
+    median_error = np.median(distances)
+
+    print("\nStatistische Analyse der Fehler:")
+    print(f"Mittelwert (Mean): {mean_error:.2f} Pixel")
+    print(f"Standardabweichung (Std Dev): {std_dev:.2f} Pixel")
+    print(f"Median: {median_error:.2f} Pixel")
+
+    # plt.figure(figsize=(8, 5))
+    # plt.hist(distances, bins=10, edgecolor='black', alpha=0.7)
+    # plt.xlabel("Fehlerdistanz (Pixel)")
+    # plt.ylabel("Häufigkeit")
+    # plt.title("Histogramm der Abweichungen zwischen YOLO und Hough")
+    # plt.show()

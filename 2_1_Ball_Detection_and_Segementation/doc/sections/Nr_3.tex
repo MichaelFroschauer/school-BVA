@@ -1,0 +1,72 @@
+\section{Segmentierung der Bälle}
+
+Im nächsten Schritt sollten nach der Klassifizierung der Bälle, die Segmentierung folgen. Hierfür sollte haupsächlich die Farbe des Balls hergenommen werden.
+
+In unserem Fall sollten Fußbälle segmentiert werden.
+
+Hier entstehen einige Schwierigkeiten:
+* Fußbälle haben typischerweise nicht immer die gleiche Farbe. Meistens sind sie weiß, allerdings nicht immer.
+* Fußbälle sind nicht einfärbig. Es gibt oft verschiedene Bereiche die eine andere Farbe haben.
+* Bälle im allgemeinen, sind auf ca 1/3 der Fläche des Bildes um einiges dunkler, da sie einen Schatten werfen, gerade wenn diese am Boden liegen. Das stellt eine Herausforderung bei der Segmentierung mittels der Farbe dar.
+
+Um die Bälle möglichst gut segmentieren zu können muss auf diese Schwierigkeiten geachtet werden und entsprechend verschiedene Ansätze getestet, die ein möglichst gute Segmentierung versprechen.
+
+
+## Aufteilung der Implementierung
+
+1. Erstellen oder einlesen des Ergebnisses vom YOLO Modell (sports ball boxes, image mit klassifizierung).
+2. Erstellen der Ball-Maske (Hier werden verschiedene Methoden getestet)
+3. Overlay der Ball-Maske auf das Originalbild erstellen.
+4. Erstellte Bilder anzeigen/speichern.
+
+
+
+## Erstellung der Ball-Maske
+
+Für die Erstellung der Ball-Maske wurde der Bereich der von YOLO-Modell erkannt wurde näher analysiert. Dabei wurde nicht genau der Bereich gewählt sondern, der Bereich in jede Richtung um 10 Pixel erweitert. Das hat den Grund, da das YOLO-Modell manche Bälle leicht abgeschnitten hat.
+
+Ich habe hierfür verschiedene Methoden getestet um die Bälle zu segmentieren.
+* Bild entsprechend mit Filtern vorbereiten und dann mit KMeans Algorithmus nach Farben segmentieren.
+    -> Wenn die Filter und Filterparameter entsprechend dem Bild gut gewählt werden funktioniert es relativ gut. Allerdings dann nicht allgemein für verschiedene Bälle mit verschiedenen Farben.
+    -> Filterung:
+        1. Bild verschwommen machen mit Gaussian-Blur.
+        2. KMeans-Segmentierung anwenden.
+        3. Bild in Graustufenbild umwandeln.
+        4. Threshold auf das Bild anwenden um es Weiß-Schwarz zu machen.
+        5. Morphologische Filter Open-Close anwenden um Artefakte zu entfernen.
+* Kantenerkennung mit Canny-Edge-Detector und Sobel-Edge-Detector
+    -> Keine guten Ergebnisse, man konnte damit garnichts anfangen. Nicht weiter verfolgt.
+* Bild entsprechend mit Filtern vorbereiten und dann Kreiserkennung mit `cv2.HoughCircles` den Ball erkennen.
+    -> Funktioniert ausgezeichnet gut. Die Bälle werden unabhängig von Spiegelung und Farbe sehr gut erkannt.
+    -> Filterung:
+        1. Bild in Graustufenbild umwandeln.
+        2. Bälle im Bild mit `HoughCircles` erkennen lassen.
+        3. Weiß-Schwarz Maske des erkannten Kreis erstellen.
+
+
+
+## Ball im Bild segmentieren
+
+Nach der Erstellung der Ball-Maske kann diese auf das ursprüngliche Bild angewandt werden. 
+Hierfür wird ... (ganz kurze Beschreibung des Codes, dieser muss nicht ganz eingefügt werden):
+
+```python
+image_ball_box = image[y_min:y_max, x_min:x_max].copy()
+
+# Create red overlay color for the same region
+overlay_color = np.full_like(image_ball_box, (0, 0, 255), dtype=np.uint8)
+
+# Apply mask to the overlay
+mask_indices = ball_mask > 0
+image_ball_box[mask_indices] = ((1 - alpha) * image_ball_box[mask_indices] + alpha * overlay_color[mask_indices]).astype(np.uint8)
+
+# Place modified region back into the original image
+image_with_overlay = image.copy()
+image_with_overlay[y_min:y_max, x_min:x_max] = image_ball_box
+```
+
+
+
+
+
+

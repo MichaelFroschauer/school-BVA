@@ -9,7 +9,7 @@ from image_processing import *
 model = YOLO("yolo11n.pt")
 
 # Load image
-image_path = "./img/ball_5.jpg"
+image_path = "./img/ball_7.jpg"
 image = cv2.imread(image_path)
 
 # Perform object detection
@@ -35,10 +35,17 @@ image_bounding_box, ball_boxes = process_detections(image_bounding_box, yolo_res
 image_copy = image.copy()
 image_with_overlay = image.copy()
 image_with_weighted_overlay = image.copy()
+stat_circles = []
 for ball_box in ball_boxes:
+    b = 10
+    x_min, y_min, x_max, y_max = ball_box
+    ball_box = (x_min - b, y_min - b, x_max + b, y_max + b)
 
+    #ball_mask = create_ball_mask_with_kmeans(image_copy, ball_box)
     #ball_mask = create_ball_mask_2(image_copy, ball_box)
-    ball_mask = create_ball_mask_with_kmeans(image_copy, ball_box)
+    ball_mask, circles = create_ball_mask_3(image_copy, ball_box)
+
+    stat_circles.extend(circles)
 
     cv2.imshow("ball_mask", ball_mask)
 
@@ -50,8 +57,10 @@ for ball_box in ball_boxes:
 
     # add mask weighted
     image_with_weighted_overlay = create_ball_overlay(image_with_weighted_overlay, ball_mask, ball_box, 0.5)
-    #cv2.imshow("image_with_weighted_overlay", image_with_weighted_overlay)
+    cv2.imshow("image_with_weighted_overlay", image_with_weighted_overlay)
 
+
+create_statistical_centroid_analysis(ball_boxes, stat_circles)
 
 
 # Show images

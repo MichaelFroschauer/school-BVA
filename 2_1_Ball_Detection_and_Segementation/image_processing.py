@@ -8,21 +8,20 @@ def process_detections(image, yolo_results, yolo_class_names):
     Processes detections and adds bounding boxes to the image.
     It also collects the bounding boxes of detected sports balls.
 
-    Parameters:
-    - image (np.ndarray): The image on which the bounding boxes will be drawn.
-    - results (list): Detection results (output of the YOLO model).
-    - class_names (list): List of class names (e.g., ['person', 'sports ball']).
+    :param image (np.ndarray): The image on which the bounding boxes will be drawn.
+    :param results (list): Detection results (output of the YOLO model).
+    :param class_names (list): List of class names (e.g., ['person', 'sports ball']).
 
-    Returns:
-    - np.ndarray: The image with bounding boxes.
-    - list: List of bounding boxes for detected sports balls.
+    :return
+        - np.ndarray: The image with bounding boxes.
+        - list: List of bounding boxes for detected sports balls.
     """
     ball_boxes = []
 
     for r in yolo_results:
-        boxes = r.boxes.xyxy.cpu().numpy()  # Bounding-Box-Koordinaten
-        confidences = r.boxes.conf.cpu().numpy()  # Konfidenzwerte
-        class_ids = r.boxes.cls.cpu().numpy().astype(int)  # Klassen-IDs
+        boxes = r.boxes.xyxy.cpu().numpy()  # bounding box coordinates
+        confidences = r.boxes.conf.cpu().numpy()  # confident values
+        class_ids = r.boxes.cls.cpu().numpy().astype(int)  # class id's
 
         for box, conf, class_id in zip(boxes, confidences, class_ids):
             x_min, y_min, x_max, y_max = map(int, box)
@@ -40,12 +39,10 @@ def scale_image(image, scale_factor):
     """
     Resizes an image by a given scale factor.
 
-    Parameters:
-    - image (np.ndarray): The input image (BGR format).
-    - scale_factor (float): Scaling factor (e.g., 0.5 reduces size by 50%, 2.0 doubles it).
+    :param image (np.ndarray): The input image (BGR format).
+    :param scale_factor (float): Scaling factor (e.g., 0.5 reduces size by 50%, 2.0 doubles it).
 
-    Returns:
-    - np.ndarray: The resized image.
+    :return np.ndarray: The resized image.
     """
     if scale_factor <= 0:
         raise ValueError("Scale factor must be greater than zero.")
@@ -66,14 +63,12 @@ def get_dynamic_kernel_size(image, factor=0.05, min_size=3, max_size=25):
     """
     Computes a dynamic Gaussian blur kernel size based on image dimensions.
 
-    Parameters:
-    - image (np.ndarray): The input image.
-    - factor (float): The fraction of the image size to use for kernel size.
-    - min_size (int): Minimum kernel size (must be odd).
-    - max_size (int): Maximum kernel size (must be odd).
+    :param image (np.ndarray): The input image.
+    :param factor (float): The fraction of the image size to use for kernel size.
+    :param min_size (int): Minimum kernel size (must be odd).
+    :param max_size (int): Maximum kernel size (must be odd).
 
-    Returns:
-    - (int, int): Kernel size (height, width), both are guaranteed to be odd numbers.
+    :return (int, int): Kernel size (height, width), both are guaranteed to be odd numbers.
     """
     height, width = image.shape[:2]
     kernel_size = int(min(width, height) * factor)
@@ -92,14 +87,12 @@ def create_ball_mask_with_kmeans(image, ball_box, k=3, threshold_value=100):
     """
     Creates a binary mask for the ball in the image using K-Means clustering.
 
-    Parameters:
-    - image (np.ndarray): The input image (BGR format).
-    - ball_box (tuple): Coordinates of the bounding box [x_min, y_min, x_max, y_max].
-    - k (int): Number of clusters for K-Means segmentation (default is 3).
-    - threshold_value (int): The threshold value to create a binary mask (default is 100).
+    :param image (np.ndarray): The input image (BGR format).
+    :param ball_box (tuple): Coordinates of the bounding box [x_min, y_min, x_max, y_max].
+    :param k (int): Number of clusters for K-Means segmentation (default is 3).
+    :param threshold_value (int): The threshold value to create a binary mask (default is 100).
 
-    Returns:
-    - np.ndarray: The binary mask of the ball.
+    :return np.ndarray: The binary mask of the ball.
     """
 
     x_min, y_min, x_max, y_max = ball_box
@@ -131,94 +124,95 @@ def create_ball_mask_with_kmeans(image, ball_box, k=3, threshold_value=100):
     return ball_mask
 
 
-def create_ball_mask_2(image, ball_box, k=3, threshold_value=100):
+def create_ball_mask_with_edge_detection(image, ball_box):
+    """
+    Detects circles within a specified bounding box in an image using edge detection and Hough Circle Transform.
+
+    :param image (numpy.ndarray): The input image (BGR format).
+    :param ball_box (tuple): A tuple (x_min, y_min, x_max, y_max) representing the coordinates of the bounding box.
+
+    :return tuple:
+            - ball_mask (numpy.ndarray): A binary mask of the detected circles within the bounding box.
+            - detected_circles (list): A list of tuples, where each tuple represents a detected circle
+              in the format (x, y, radius).
+    """
+    # Bounding box coordinates
     x_min, y_min, x_max, y_max = ball_box
+
+    # Crop the region of interest (ROI) from the original image based on the bounding box
     image_ball_box = image[y_min:y_max, x_min:x_max].copy()
 
-    img_gray = cv2.cvtColor(image_ball_box, cv2.COLOR_BGR2GRAY)
-    kernel_size = (17, 17)
-    blurred_image = cv2.GaussianBlur(img_gray, kernel_size, 0)
-
-    circles = cv2.HoughCircles(blurred_image, cv2.HOUGH_GRADIENT, 1, 20, param1=130, param2=30, minRadius=0, maxRadius=0)
-    if circles is not None:
-        for x, y, r in circles[0]:
-            c = plt.Circle((x, y), r, fill=False, lw=3, ec='C1')
-            plt.gca().add_patch(c)
-    plt.gcf().set_size_inches((12, 8))
-    plt.show()
-
-    # cv2.imshow("blurred_image", blurred_image)
-    # circles = cv2.HoughCircles(blurred_image, cv2.HOUGH_GRADIENT, 1.2, 100)
-    # cv2.imshow("blurred_image_2", blurred_image)
-    # ball_mask = cv2.circle(image_ball_box, (50, 50), 30, (0, 100, 100), 3)
-    # cv2.imshow("ball_mask", ball_mask)
-
-    return blurred_image
-
-
-
-def create_ball_mask_3(image, ball_box):
-    x_min, y_min, x_max, y_max = ball_box
-    image_ball_box = image[y_min:y_max, x_min:x_max].copy()
-
+    # Convert the cropped image to grayscale for edge detection
     gray = cv2.cvtColor(image_ball_box.copy(), cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    equalized = cv2.equalizeHist(blurred)
-    cv2.imshow("equalized", equalized)
-
-    adjusted = cv2.convertScaleAbs(equalized, alpha=1.5, beta=30)
-    cv2.imshow("adjusted", adjusted)
-
-    gray = cv2.cvtColor(image_ball_box.copy(), cv2.COLOR_BGR2GRAY)
+    # Apply Gaussian blur to reduce noise and improve circle detection
     gray_blurred = cv2.GaussianBlur(gray, (15, 15), 0)
-    circles = cv2.HoughCircles(gray_blurred, cv2.HOUGH_GRADIENT, dp=1.2, minDist=30, param1=50, param2=30, minRadius=10, maxRadius=300)
+
+    # Detect circles using Hough Circle Transform
+    # - dp: Inverse ratio of resolution
+    # - minDist: Minimum distance between detected centers
+    # - param1: Upper threshold for Canny edge detector
+    # - param2: Threshold for center detection
+    # - minRadius and maxRadius: Limits for circle size
+    circles = cv2.HoughCircles(
+        gray_blurred, cv2.HOUGH_GRADIENT, dp=1.4, minDist=100,
+        param1=50, param2=30, minRadius=10, maxRadius=500
+    )
 
     ball_mask = np.zeros_like(image_ball_box)
-
     detected_circles = []
     if circles is not None:
         circles = np.round(circles[0, :]).astype("int")
         for (x, y, r) in circles:
+            # Draw a filled white circle on the mask at the detected location
             cv2.circle(ball_mask, (x, y), r, (255, 255, 255), -1)
             detected_circles.append((x, y, r))
 
     return ball_mask, detected_circles
 
 
-def create_ball_mask(image, ball_box):
+def create_ball_mask_with_color(image, ball_box, threshold_value=120):
+    """
+    Creates a binary mask identifying regions of the image that correspond to a ball
+    based on color thresholding and optional blur.
+
+    :param image (numpy.ndarray): The input image (BGR format).
+    :param ball_box (tuple): A tuple (x_min, y_min, x_max, y_max) representing the coordinates of the bounding box
+                             around the area of interest (e.g., the ball).
+    :param threshold_value (int, optional): The threshold value for binarization after color thresholding (default is 120).
+
+    :return numpy.ndarray: A binary mask where the ball region is white (255) and the rest is black (0).
+    """
     x_min, y_min, x_max, y_max = ball_box
+    # Crop the image to the specified bounding box region
     image_ball_box = image[y_min:y_max, x_min:x_max].copy()
 
-    lower_white = np.array([30, 60, 60])
+    # Define the lower and upper bounds for white color detection in the image (RGB format)
+    lower_white = np.array([100, 120, 100])
     upper_white = np.array([255, 255, 255])
 
-    # blur the image for better results
+    # Blur the image to reduce noise and improve results of thresholding
     blur = cv2.blur(image_ball_box, (5, 5))
+
+    # Optionally, other blur techniques
     # blur0 = cv2.medianBlur(blur, 5)
     # blur1 = cv2.GaussianBlur(blur0, (5, 5), 0)
     # blur2 = cv2.bilateralFilter(blur1, 9, 75, 75)
 
     cv2.imshow("image_ball_box", image_ball_box)
 
-    mask_ball = cv2.inRange(image_ball_box, lower_white, upper_white)
-    cv2.imshow("mask_ball", mask_ball)
+    # Create a mask where pixels in the range [lower_white, upper_white] are white (255) and others are black (0)
+    ball_mask = cv2.inRange(blur, lower_white, upper_white)
+    _, ball_mask = cv2.threshold(ball_mask, threshold_value, 255, cv2.THRESH_BINARY)
 
-    # **DISRUPTION-ERUPTION FILTER (Morphologische Operationen)**
-    #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    #mask_closed = cv2.morphologyEx(mask_ball, cv2.MORPH_CLOSE, kernel)  # Schließt Lücken
-    #mask_opened = cv2.morphologyEx(mask_closed, cv2.MORPH_OPEN, kernel)  # Entfernt Rauschen
-    #cv2.imshow("mask_opened", mask_opened)
+    # Optionally, morphological operations to improve the mask
+    # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    # mask_closed = cv2.morphologyEx(ball_mask, cv2.MORPH_CLOSE, kernel)  # Closes small gaps in the mask
+    # mask_opened = cv2.morphologyEx(mask_closed, cv2.MORPH_OPEN, kernel)  # Removes noise in the mask
+    # cv2.imshow("mask_opened", mask_opened)
 
-    image_ball_box_rgb = cv2.cvtColor(blur, cv2.COLOR_BGR2RGB)
-    image_segmented = apply_kmeans(image_ball_box_rgb, 2)
-    cv2.imshow("image_segmented", image_segmented)
-
-    _, ball_mask = cv2.threshold(image_segmented, 100, 255, cv2.THRESH_BINARY)
-
+    # Return the binary mask
     return ball_mask
-
-
 
 
 
@@ -226,14 +220,12 @@ def create_ball_overlay(image, ball_mask, bbox, alpha=1.0):
     """
     Applies a red overlay to the detected ball region in an image.
 
-    Parameters:
-    - image (np.ndarray): The original input image (BGR format).
-    - ball_mask (np.ndarray): A binary mask (same size as bbox) indicating the ball area.
-    - bbox (tuple): The bounding box of the ball in (x_min, y_min, x_max, y_max) format.
-    - alpha (float): The transparency of the overlay.
+    :param image (np.ndarray): The original input image (BGR format).
+    :param ball_mask (np.ndarray): A binary mask (same size as bbox) indicating the ball area.
+    :param bbox (tuple): The bounding box of the ball in (x_min, y_min, x_max, y_max) format.
+    :param alpha (float): The transparency of the overlay.
 
-    Returns:
-    - np.ndarray: The image with the ball overlay applied.
+    :return np.ndarray: The image with the ball overlay applied.
     """
     x_min, y_min, x_max, y_max = bbox
 
@@ -258,13 +250,11 @@ def add_bounding_box(image, bbox, label=""):
     """
     Draws a bounding box with an optional label on an image.
 
-    Parameters:
-    - image (np.ndarray): The input image (BGR format).
-    - bbox (tuple): Bounding box in (x_min, y_min, x_max, y_max) format.
-    - label (str, optional): Text label for the bounding box (default: "").
+    :param image (np.ndarray): The input image (BGR format).
+    :param bbox (tuple): Bounding box in (x_min, y_min, x_max, y_max) format.
+    :param label (str, optional): Text label for the bounding box (default: "").
 
-    Returns:
-    - np.ndarray: The image with the bounding box and label drawn.
+    :return np.ndarray: The image with the bounding box and label drawn.
     """
     x_min, y_min, x_max, y_max = bbox
 
@@ -282,38 +272,101 @@ def add_bounding_box(image, bbox, label=""):
     return image_with_bbox
 
 
+# Array for saving the centroid distances for later statistical analysis
+distances_for_statistical_analysis = []
 
-def create_statistical_centroid_analysis(yolo_boxes, hough_circles):
-    distances = []
+def append_statistical_centroid_analysis(image_name, image, yolo_boxes, hough_circles, extend_bbox_px):
+    """
+    Appends the Euclidean distance between the centroids of YOLO bounding boxes and Hough circles for statistical analysis.
 
-    for i in range(len(yolo_boxes)):
+    This function processes the detected bounding boxes and Hough circles, calculates their centroids,
+    computes the Euclidean distance between corresponding centroids, and stores these distances for further analysis.
+    It also visualizes the centroids on a cropped region of the image.
+
+    :param image_name (str): The name of the image being processed (used for displaying results).
+    :param image (numpy.ndarray): The original image where the bounding boxes and circles are detected.
+    :param yolo_boxes (list of tuples): List of YOLO bounding boxes, each represented as (x_min, y_min, x_max, y_max).
+    :param hough_circles (list of tuples): List of Hough circles, each represented as (x_center, y_center, radius).
+    :param extend_bbox_px (int): The number of pixels to extend the bounding box around the detected region.
+    """
+    for i in range(len(hough_circles)):
+        # Extract YOLO bounding box coordinates
         x_min, y_min, x_max, y_max = yolo_boxes[i]
+
+        # Extend bounding box by the specified number of pixels
+        ball_box_wide = (x_min - extend_bbox_px, y_min - extend_bbox_px, x_max + extend_bbox_px, y_max + extend_bbox_px)
+        x_min, y_min, x_max, y_max = ball_box_wide
+
+        # Calculate width and height of the bounding box
         w = x_max - x_min
         h = y_max - y_min
+
+        # Calculate centroid of the YOLO bounding box (center of the box)
         yolo_centroid = (w / 2, h / 2)
 
+        # Extract centroid from Hough Circle detection
         hough_x, hough_y, _ = hough_circles[i]
         hough_centroid = (float(hough_x), float(hough_y))
 
-        # Berechnung der euklidischen Distanz zwischen den beiden Methoden
+        # Compute Euclidean distance between YOLO and Hough centroids
         distance = np.linalg.norm(np.array(yolo_centroid) - np.array(hough_centroid))
-        distances.append(distance)
+        distances_for_statistical_analysis.append(distance)
 
-        print(f"Bild {i + 1}: YOLO-Centroid {yolo_centroid}, Hough-Centroid {hough_centroid}, Abstand: {distance:.2f}")
+        # Print the results for this image
+        print(f"{image_name}: YOLO Centroid {yolo_centroid}, Hough Centroid {hough_centroid}, Distance: {distance:.2f}")
 
-    # Statistische Analyse
-    mean_error = np.mean(distances)
-    std_dev = np.std(distances)
-    median_error = np.median(distances)
+        # Draw centroids on a cropped region of the original image
+        image_ball_box = image[y_min:y_max, x_min:x_max].copy()
+        image_with_centroids = draw_centroids_on_image(image_ball_box, yolo_centroid, hough_centroid)
+        cv2.imshow(f"{image_name}_centroids (YOLO = red, Hough = green)", image_with_centroids)
 
-    print("\nStatistische Analyse der Fehler:")
-    print(f"Mittelwert (Mean): {mean_error:.2f} Pixel")
-    print(f"Standardabweichung (Std Dev): {std_dev:.2f} Pixel")
-    print(f"Median: {median_error:.2f} Pixel")
 
+def create_statistical_analysis():
+    """
+    Performs statistical analysis on the distances between the YOLO and Hough centroids.
+
+    This function calculates the mean, standard deviation, and median of the Euclidean distances between
+    the centroids of YOLO bounding boxes and Hough circles, and displays these statistics.
+    """
+    # --- Statistical Analysis of the distances ---
+    mean_error = np.mean(distances_for_statistical_analysis)
+    std_dev = np.std(distances_for_statistical_analysis)
+    median_error = np.median(distances_for_statistical_analysis)
+
+    # Print overall statistics
+    print("\nStatistical analysis of the errors:")
+    print(f"Mean: {mean_error:.4f} pixels")
+    print(f"Standard deviation: {std_dev:.4f} pixels")
+    print(f"Median: {median_error:.4f} pixels")
+
+    # Optional: Histogram plot of error distribution
     # plt.figure(figsize=(8, 5))
-    # plt.hist(distances, bins=10, edgecolor='black', alpha=0.7)
-    # plt.xlabel("Fehlerdistanz (Pixel)")
-    # plt.ylabel("Häufigkeit")
-    # plt.title("Histogramm der Abweichungen zwischen YOLO und Hough")
+    # plt.hist(distances_for_statistical_analysis, bins=5, edgecolor='black', alpha=0.7)
+    # plt.xlabel("Error distance (pixels)")
+    # plt.ylabel("Frequency")
+    # plt.title("Histogram of YOLO vs Hough centroid deviations")
     # plt.show()
+
+
+def draw_centroids_on_image(image, yolo_centroid, hough_centroid):
+    """
+    Draws the centroids of YOLO and Hough detections on the image.
+
+    :param image (numpy.ndarray): The image where the centroids will be drawn.
+    :param yolo_centroid (tuple): The (x, y) coordinates of the YOLO centroid.
+    :param hough_centroid (tuple): The (x, y) coordinates of the Hough centroid.
+
+    :return numpy.ndarray: The image with the centroids drawn on it.
+
+    :note The YOLO centroid is drawn in red, and the Hough centroid is drawn in green.
+    """
+    image_with_centroids = image.copy()
+
+    # Draw YOLO centroid in red
+    cv2.circle(image_with_centroids, (int(yolo_centroid[0]), int(yolo_centroid[1])), 2, (0, 0, 255), -1)
+
+    # Draw Hough centroid in green
+    cv2.circle(image_with_centroids, (int(hough_centroid[0]), int(hough_centroid[1])), 2, (0, 255, 0), -1)
+
+    return image_with_centroids
+

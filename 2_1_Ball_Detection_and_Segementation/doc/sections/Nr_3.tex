@@ -1,72 +1,143 @@
 \section{Segmentierung der Bälle}
 
-Im nächsten Schritt sollten nach der Klassifizierung der Bälle, die Segmentierung folgen. Hierfür sollte haupsächlich die Farbe des Balls hergenommen werden.
+Nach der Klassifizierung der Bälle folgt die Segmentierung. Die Segmentierung basiert hauptsächlich auf der Farbe der Bälle. Im Rahmen dieses Projekts konzentrieren werden Fußbälle segmentiert.
 
-In unserem Fall sollten Fußbälle segmentiert werden.
+Es treten jedoch einige Herausforderungen auf:
+\begin{itemize}
+    \item Fußbälle haben nicht immer die gleiche Farbe. Sie sind meistens weiß, jedoch variiert dies.
+    \item Fußbälle sind nicht einfärbig, sondern bestehen oft aus mehreren Farbflächen.
+    \item Bälle werfen Schatten, besonders wenn sie auf dem Boden liegen. Diese Schatten führen dazu, dass etwa ein Drittel des Balls deutlich dunkler erscheint, was die Segmentierung erschwert.
+\end{itemize}
 
-Hier entstehen einige Schwierigkeiten:
-* Fußbälle haben typischerweise nicht immer die gleiche Farbe. Meistens sind sie weiß, allerdings nicht immer.
-* Fußbälle sind nicht einfärbig. Es gibt oft verschiedene Bereiche die eine andere Farbe haben.
-* Bälle im allgemeinen, sind auf ca 1/3 der Fläche des Bildes um einiges dunkler, da sie einen Schatten werfen, gerade wenn diese am Boden liegen. Das stellt eine Herausforderung bei der Segmentierung mittels der Farbe dar.
-
-Um die Bälle möglichst gut segmentieren zu können muss auf diese Schwierigkeiten geachtet werden und entsprechend verschiedene Ansätze getestet, die ein möglichst gute Segmentierung versprechen.
+Um eine präzise Segmentierung zu erzielen, müssen diese Herausforderungen berücksichtigt werden. Dafür werden verschiedene Methoden getestet, die unterschiedliche Ansätze zur Farbsegmentierung nutzen.
 
 
-## Aufteilung der Implementierung
+\subsection{Information zu den Tests}
 
-1. Erstellen oder einlesen des Ergebnisses vom YOLO Modell (sports ball boxes, image mit klassifizierung).
-2. Erstellen der Ball-Maske (Hier werden verschiedene Methoden getestet)
-3. Overlay der Ball-Maske auf das Originalbild erstellen.
-4. Erstellte Bilder anzeigen/speichern.
+In dieser Dokumentation wird für Vergleichszwecke dasselbe Bild verwendet. Es wurde jedoch auch mit mehreren anderen Bildern getestet, die im Anhang der Abgabe enthalten sind.
 
 
 
-## Erstellung der Ball-Maske
+\subsection{Aufteilung der Implementierung}
 
-Für die Erstellung der Ball-Maske wurde der Bereich der von YOLO-Modell erkannt wurde näher analysiert. Dabei wurde nicht genau der Bereich gewählt sondern, der Bereich in jede Richtung um 10 Pixel erweitert. Das hat den Grund, da das YOLO-Modell manche Bälle leicht abgeschnitten hat.
+Die Implementierung der Ballsegmentierung erfolgt in mehreren Schritten:
+\begin{enumerate}
+    \item Einlesen oder Erstellen der YOLO-Ergebnisse (Sportball-Bounding-Boxes und Klassifizierungsbild).
+    \item Erstellung der Ball-Maske (verschiedene Methoden zur Segmentierung werden getestet).
+    \item Overlay der Ball-Maske auf das Originalbild.
+    \item Anzeige und Speicherung der bearbeiteten Bilder.
+\end{enumerate}
 
-Ich habe hierfür verschiedene Methoden getestet um die Bälle zu segmentieren.
-* Bild entsprechend mit Filtern vorbereiten und dann mit KMeans Algorithmus nach Farben segmentieren.
-    -> Wenn die Filter und Filterparameter entsprechend dem Bild gut gewählt werden funktioniert es relativ gut. Allerdings dann nicht allgemein für verschiedene Bälle mit verschiedenen Farben.
-    -> Filterung:
-        1. Bild verschwommen machen mit Gaussian-Blur.
-        2. KMeans-Segmentierung anwenden.
-        3. Bild in Graustufenbild umwandeln.
-        4. Threshold auf das Bild anwenden um es Weiß-Schwarz zu machen.
-        5. Morphologische Filter Open-Close anwenden um Artefakte zu entfernen.
-* Kantenerkennung mit Canny-Edge-Detector und Sobel-Edge-Detector
-    -> Keine guten Ergebnisse, man konnte damit garnichts anfangen. Nicht weiter verfolgt.
-* Bild entsprechend mit Filtern vorbereiten und dann Kreiserkennung mit `cv2.HoughCircles` den Ball erkennen.
-    -> Funktioniert ausgezeichnet gut. Die Bälle werden unabhängig von Spiegelung und Farbe sehr gut erkannt.
-    -> Filterung:
-        1. Bild in Graustufenbild umwandeln.
-        2. Bälle im Bild mit `HoughCircles` erkennen lassen.
-        3. Weiß-Schwarz Maske des erkannten Kreis erstellen.
+\newpage
+\subsection{Erstellung der Ball-Maske}
+
+Zur Erstellung der Ball-Maske wird der vom YOLO-Modell erkannte Bereich des Balls genauer untersucht. Dieser Bereich wird um 10 Pixel in alle Richtungen erweitert, um eventuelle Fehler durch abgeschnittene Bälle zu kompensieren.
+
+Es werden mehrere Methoden zur Segmentierung getestet:
 
 
+\subsubsection{Farbsegmentierung}
 
-## Ball im Bild segmentieren
+Diese Methode nutzt ausschließlich die Farbe des Balls zur Segmentierung. Dabei wird ein Schwellenwert für die Farbe des Balls festgelegt, wobei in dieser Methode nur weiße Bälle segmentiert werden können. Andere Farben werden nicht berücksichtigt.
 
-Nach der Erstellung der Ball-Maske kann diese auf das ursprüngliche Bild angewandt werden. 
-Hierfür wird ... (ganz kurze Beschreibung des Codes, dieser muss nicht ganz eingefügt werden):
+\begin{itemize}
+    \item Filterung:
+    \begin{enumerate}
+        \item Festlegung der Farbgrenzen für den weißen Bereich des Balls.
+        \item Weichzeichnung des Bildes, um Rauschen zu reduzieren.
+        \item Erzeugung eines Farb-Schwellenwerts, der idealerweise nur die Ballfarbe (weiß) enthält.
+        \item Anwendung eines Schwellenwerts auf das Bild, um eine binäre Schwarz-Weiß-Maske zu erstellen.
+        \item Optional: Einsatz morphologischer Filter, um Artefakte und Rauschen zu entfernen.
+    \end{enumerate}
+\end{itemize}
 
-```python
+
+\begin{minipage}[t]{0.4\textwidth}
+    \includeImgNoUrl{H}{width=0.4\linewidth}{img/3_ball_maske_farbe.png}{Ballmaske mit Farbsegmentierung}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.6\textwidth}
+    \includeImgNoUrl{H}{width=0.8\linewidth}{img/3_ball_maske_farbe_1.png}{Ball Overlay mit Farbsegmentierung}{fig2}{\centering}
+\end{minipage}
+
+
+\newpage
+
+\subsubsection{KMeans-Segmentierung}
+
+Bei dieser Methode wird das Bild zunächst mit Filtern vorbereitet, bevor der KMeans-Algorithmus auf die Bilddaten angewendet wird, um die Farben zu segmentieren. Diese Methode liefert gute Ergebnisse, solange die Filter und Parameter für das jeweilige Bild passend gewählt werden. Sie ist jedoch nicht universell anwendbar, da sie stark von der Farbgebung des Balls abhängt.
+
+\begin{itemize}
+    \item Filterung:
+    \begin{enumerate}
+        \item Das Bild wird mit einem Gaussian-Blur verschwommen gemacht.
+        \item Der KMeans-Algorithmus wird zur Segmentierung angewendet.
+        \item Das Bild wird in Graustufen umgewandelt.
+        \item Ein Schwellenwert wird auf das Graustufenbild angewendet, um es in ein binäres Schwarz-Weiß-Bild umzuwandeln.
+        \item Morphologische Filter (Open/Close) werden eingesetzt, um Artefakte zu entfernen.
+    \end{enumerate}
+\end{itemize}
+
+\begin{minipage}[t]{0.4\textwidth}
+    \includeImgNoUrl{H}{width=0.4\linewidth}{img/3_ball_maske_kmeans.png}{Ballmaske mit KMeans-Segmentierung}{fig3}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.6\textwidth}
+    \includeImgNoUrl{H}{width=0.8\linewidth}{img/3_ball_maske_kmeans_1.png}{Ball Overlay KMeans-Segmentierung}{fig4}{\centering}
+\end{minipage}
+
+
+\subsubsection{Kantenerkennung mit Canny- und Sobel-Edge-Detektoren}
+
+Diese Methode liefert keine brauchbaren Ergebnisse und wird daher nicht weiter verfolgt. Die Kantenerkennung konnte keine zufriedenstellende Segmentierung des Balls erreichen.
+
+\newpage
+\subsubsection{Kreiserkennung mit HoughCircles}
+
+Diese Methode liefert ausgezeichnete Ergebnisse. Die Bälle werden unabhängig von ihrer Farbe oder etwaigen Spiegelungen zuverlässig erkannt. Dies wird durch die Anwendung der Hough-Transformation zur Kreiserkennung erreicht.
+
+\begin{itemize}
+    \item Filterung:
+    \begin{enumerate}
+        \item Das Bild wird in Graustufen umgewandelt.
+        \item Die \texttt{HoughCircles}-Funktion erkennt Bälle im Bild.
+        \item Eine binäre Weiß-Schwarz-Maske wird für die erkannten Kreise erstellt.
+    \end{enumerate}
+\end{itemize}
+
+\begin{minipage}[t]{0.4\textwidth}
+    \includeImgNoUrl{H}{width=0.4\linewidth}{img/3_ball_maske_houghcircles.png}{Ballmaske mit HoughCircles}{fig5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.6\textwidth}
+    \includeImgNoUrl{H}{width=0.8\linewidth}{img/3_ball_maske_houghcircles_1.png}{Ball Overlay mit HoughCircles}{fig6}{\centering}
+\end{minipage}
+
+\newpage
+\subsection{Ball im Bild segmentieren}
+
+Nach der Erstellung der Ball-Maske wird diese auf das Originalbild angewendet, um den Ballbereich zu kennzeichnen. Dies geschieht durch ein Overlay der Maske mit einer roten Farbe, um den Ball visuell hervorzuheben.
+
+\begin{minted}[linenos]{python}
 image_ball_box = image[y_min:y_max, x_min:x_max].copy()
-
-# Create red overlay color for the same region
 overlay_color = np.full_like(image_ball_box, (0, 0, 255), dtype=np.uint8)
 
-# Apply mask to the overlay
 mask_indices = ball_mask > 0
 image_ball_box[mask_indices] = ((1 - alpha) * image_ball_box[mask_indices] + alpha * overlay_color[mask_indices]).astype(np.uint8)
+\end{minted}
 
-# Place modified region back into the original image
-image_with_overlay = image.copy()
-image_with_overlay[y_min:y_max, x_min:x_max] = image_ball_box
-```
+\begin{minipage}[t]{0.3\textwidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/3_ball_maske_farbe_ergebnis.png}{Ergebnis mit Farbsegmentierung}{fig2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.3\textwidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/3_ball_maske_kmeans_ergebnis.png}{Ergebnis mit KMeans-Segmentierung}{fig4}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.3\textwidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/3_ball_maske_houghcircles_ergebnis.png}{Ergebnis mit HoughCircles}{fig6}{\centering}
+\end{minipage}
 
+\subsection{Zusammenfassung Implementierung}
 
-
-
-
-
+Die Segmentierung der Bälle wurde erfolgreich umgesetzt, indem verschiedene Ansätze zur Farbbasierenden Segmentierung getestet und miteinander verglichen wurden. Die Kreiserkennung mittels \texttt{HoughCircles} hat sich als die zuverlässigste Methode erwiesen, um die Bälle präzise zu segmentieren, unabhängig von ihrer Farbe und Position im Bild.

@@ -1,37 +1,65 @@
-\section{Statistische Analyse der Abweichung vom Schwerpunkt}
+\section{Statistische Analyse}
 
-Für diese Analyse werden die von YOLO erstellten bounding boxes und die von der Segmentierung gefundenen Bälle analysiert und der Schwerpunkt berechnet. Anschließend wird der Unterschied des Schwerpunkts zwischen beiden Methoden analysiert und statistisch ausgewertet.
+In dieser Analyse werden die YOLO-basierten Bounding Boxes und die durch Segmentierung ermittelten Ball-Zentren verglichen. Für beide Methoden werden die Schwerpunkte berechnet und die Abweichung zwischen den Ergebnissen statistisch ausgewertet.
 
-Schwerpunkt YOLO bounding box:
-x = width_box / 2
-y = height_box / 2
+\subsection{Berechnung des Schwerpunkts}
+Für die YOLO-Bounding-Box wird der Schwerpunkt als Zentrum der Box berechnet:
+\[
+x_{\text{YOLO}} = \frac{\text{width}_{\text{box}}}{2}, \quad y_{\text{YOLO}} = \frac{\text{height}_{\text{box}}}{2}
+\]
+Die Hough-Transformation liefert bereits den Schwerpunkt des erkannten Kreises direkt, sodass hier keine weitere Berechnung erforderlich ist.
+
+\subsection{Statistische Auswertung}
+Die Euclidische Distanz zwischen den Schwerpunkten der YOLO-Bounding-Box und den Hough-Zentren wird berechnet und für jede Testbildpaarung gespeichert. Die statistische Analyse umfasst die Berechnung des Mittelwerts, der Standardabweichung und des Medians der Distanzen:
+
+\begin{itemize}
+    \item Mittelwert: 1.9946 Pixel
+    \item Standardabweichung: 1.0312 Pixel
+    \item Median: 1.4977 Pixel
+\end{itemize}
+
+Die statistische Auswertung zeigt eine mittlere Abweichung von etwa 2 Pixeln zwischen den Schwerpunkten der YOLO Bounding Boxen und den Schwerpunkten aus der Hough-Transformation.
+
+Die Ergebnisse der Analyse werden durch Bilder veranschaulicht, auf denen die Schwerpunkte eingezeichnet sind. Der rote Punkt stellt den YOLO-Schwerpunkt dar, der grüne Punkt den Schwerpunkt aus der Hough-Transformation.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \textbf{Ball} & \textbf{YOLO Centroid} & \textbf{Hough Centroid} & \textbf{Distanz} & \textbf{Abbildung} \\ \hline
+    1 & (62.5, 61.0) & (62.0, 62.0) & 1.12 & \ref{fig:ball1} \\ \hline
+    2 & (61.5, 61.5) & (61.0, 60.0) & 1.58 & \ref{fig:ball2} \\ \hline
+    3 & (42.5, 43.0) & (41.0, 40.0) & 3.35 & \ref{fig:ball3} \\ \hline
+    4 & (61.0, 61.0) & (60.0, 60.0) & 1.41 & \ref{fig:ball4} \\ \hline
+    5 & (51.0, 48.5) & (51.0, 52.0) & 3.50 & \ref{fig:ball5} \\ \hline
+    6 & (78.0, 76.0) & (78.0, 75.0) & 1.00 & \ref{fig:ball6} \\ \hline
+    \end{tabular}
+    \caption{Ergebnisse der Analyse der Schwerpunkte und Distanzen}
+    \label{tab:centroid_distances}
+\end{table}
+
+\begin{minipage}[t]{0.3\textwidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/4_ball_1_centroid.png}{Schwerpunkte Ball 1}{fig:ball1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.3\textwidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/4_ball_2_centroid.png}{Schwerpunkte Ball 2}{fig:ball2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.3\textwidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/4_ball_3_centroid.png}{Schwerpunkte Ball 3}{fig:ball3}{\centering}
+\end{minipage}
 
 
-Schwerpunkt Segmentierung:
-Für die Berechnung der Schwerpunkt der Segmentierung wurde die `HoughCircles` Implementierung verwendet, da diese die besten Ergebnisse lieferte. Diese Implementierun gibt bereits den Schwerpunkt des erkannten Kreises zurück, darum ist hier keine weitere Berechnung notwendig.
+\begin{minipage}[t]{0.3\textwidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/4_ball_4_centroid.png}{Schwerpunkte Ball 4}{fig:ball4}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.3\textwidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/4_ball_5_centroid.png}{Schwerpunkte Ball 5}{fig:ball5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.3\textwidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/4_ball_6_centroid.png}{Schwerpunkte Ball 6}{fig:ball6}{\centering}
+\end{minipage}
 
-
-## Berechnung:
-Hierfür wird ... (ganz kurze Beschreibung des Codes, dieser muss nicht ganz eingefügt werden):
-
-```
-for i in range(len(yolo_boxes)):
-x_min, y_min, x_max, y_max = yolo_boxes[i]
-w = x_max - x_min
-h = y_max - y_min
-yolo_centroid = (w / 2, h / 2)
-
-hough_x, hough_y, _ = hough_circles[i]
-hough_centroid = (float(hough_x), float(hough_y))
-
-# Berechnung der euklidischen Distanz zwischen den beiden Methoden
-distance = np.linalg.norm(np.array(yolo_centroid) - np.array(hough_centroid))
-distances.append(distance)
-
-print(f"Bild {i + 1}: YOLO-Centroid {yolo_centroid}, Hough-Centroid {hough_centroid}, Abstand: {distance:.2f}")
-
-# Statistische Analyse
-mean_error = np.mean(distances)
-std_dev = np.std(distances)
-median_error = np.median(distances)
-```

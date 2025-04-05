@@ -1,0 +1,140 @@
+\section{Statistische Analyse der Abweichung vom Schwerpunkt}
+
+Für diese Analyse werden die von YOLO erstellten bounding boxes und die von der Segmentierung gefundenen Bälle analysiert und der Schwerpunkt berechnet. Anschließend wird der Unterschied des Schwerpunkts zwischen beiden Methoden analysiert und statistisch ausgewertet.
+
+Schwerpunkt YOLO bounding box:
+x = width_box / 2
+y = height_box / 2
+
+
+Schwerpunkt Segmentierung:
+Für die Berechnung der Schwerpunkt der Segmentierung wurde die `HoughCircles` Implementierung verwendet, da diese die besten Ergebnisse lieferte. Diese Implementierun gibt bereits den Schwerpunkt des erkannten Kreises zurück, darum ist hier keine weitere Berechnung notwendig.
+
+
+## Berechnung:
+Hierfür wird ... (ganz kurze Beschreibung des Codes, dieser muss nicht ganz eingefügt werden):
+
+```
+# Array for saving the centroid distances for later statistical analysis
+distances_for_statistical_analysis = []
+
+def append_statistical_centroid_analysis(image_name, image, yolo_boxes, hough_circles, extend_bbox_px):
+    """
+    Appends the Euclidean distance between the centroids of YOLO bounding boxes and Hough circles for statistical analysis.
+
+    This function processes the detected bounding boxes and Hough circles, calculates their centroids,
+    computes the Euclidean distance between corresponding centroids, and stores these distances for further analysis.
+    It also visualizes the centroids on a cropped region of the image.
+
+    :param image_name (str): The name of the image being processed (used for displaying results).
+    :param image (numpy.ndarray): The original image where the bounding boxes and circles are detected.
+    :param yolo_boxes (list of tuples): List of YOLO bounding boxes, each represented as (x_min, y_min, x_max, y_max).
+    :param hough_circles (list of tuples): List of Hough circles, each represented as (x_center, y_center, radius).
+    :param extend_bbox_px (int): The number of pixels to extend the bounding box around the detected region.
+    """
+    for i in range(len(hough_circles)):
+        # Extract YOLO bounding box coordinates
+        x_min, y_min, x_max, y_max = yolo_boxes[i]
+
+        # Extend bounding box by the specified number of pixels
+        ball_box_wide = (x_min - extend_bbox_px, y_min - extend_bbox_px, x_max + extend_bbox_px, y_max + extend_bbox_px)
+        x_min, y_min, x_max, y_max = ball_box_wide
+
+        # Calculate width and height of the bounding box
+        w = x_max - x_min
+        h = y_max - y_min
+
+        # Calculate centroid of the YOLO bounding box (center of the box)
+        yolo_centroid = (w / 2, h / 2)
+
+        # Extract centroid from Hough Circle detection
+        hough_x, hough_y, _ = hough_circles[i]
+        hough_centroid = (float(hough_x), float(hough_y))
+
+        # Compute Euclidean distance between YOLO and Hough centroids
+        distance = np.linalg.norm(np.array(yolo_centroid) - np.array(hough_centroid))
+        distances_for_statistical_analysis.append(distance)
+
+        # Print the results for this image
+        print(f"{image_name}: YOLO Centroid {yolo_centroid}, Hough Centroid {hough_centroid}, Distance: {distance:.2f}")
+
+        # Draw centroids on a cropped region of the original image
+        image_ball_box = image[y_min:y_max, x_min:x_max].copy()
+        image_with_centroids = draw_centroids_on_image(image_ball_box, yolo_centroid, hough_centroid)
+        cv2.imshow(f"{image_name}: Centroids (YOLO = red, Hough = green)", image_with_centroids)
+
+
+def create_statistical_analysis():
+    """
+    Performs statistical analysis on the distances between the YOLO and Hough centroids.
+
+    This function calculates the mean, standard deviation, and median of the Euclidean distances between
+    the centroids of YOLO bounding boxes and Hough circles, and displays these statistics.
+    """
+    # --- Statistical Analysis of the distances ---
+    mean_error = np.mean(distances_for_statistical_analysis)
+    std_dev = np.std(distances_for_statistical_analysis)
+    median_error = np.median(distances_for_statistical_analysis)
+
+    # Print overall statistics
+    print("\nStatistical analysis of the errors:")
+    print(f"Mean: {mean_error:.4f} pixels")
+    print(f"Standard deviation: {std_dev:.4f} pixels")
+    print(f"Median: {median_error:.4f} pixels")
+
+    # Optional: Histogram plot of error distribution
+    # plt.figure(figsize=(8, 5))
+    # plt.hist(distances_for_statistical_analysis, bins=5, edgecolor='black', alpha=0.7)
+    # plt.xlabel("Error distance (pixels)")
+    # plt.ylabel("Frequency")
+    # plt.title("Histogram of YOLO vs Hough centroid deviations")
+    # plt.show()
+
+
+def draw_centroids_on_image(image, yolo_centroid, hough_centroid):
+    """
+    Draws the centroids of YOLO and Hough detections on the image.
+
+    :param image (numpy.ndarray): The image where the centroids will be drawn.
+    :param yolo_centroid (tuple): The (x, y) coordinates of the YOLO centroid.
+    :param hough_centroid (tuple): The (x, y) coordinates of the Hough centroid.
+
+    :return numpy.ndarray: The image with the centroids drawn on it.
+
+    :note The YOLO centroid is drawn in red, and the Hough centroid is drawn in green.
+    """
+    image_with_centroids = image.copy()
+
+    # Draw YOLO centroid in red
+    cv2.circle(image_with_centroids, (int(yolo_centroid[0]), int(yolo_centroid[1])), 2, (0, 0, 255), -1)
+
+    # Draw Hough centroid in green
+    cv2.circle(image_with_centroids, (int(hough_centroid[0]), int(hough_centroid[1])), 2, (0, 255, 0), -1)
+
+    return image_with_centroids
+
+
+```
+
+
+Tests und Ergebnisse:
+
+```bash
+Use saved yolo results from file: ./output/ball_1.pkl
+ball_1: YOLO Centroid (62.5, 61.0), Hough Centroid (62.0, 62.0), Distance: 1.12
+Use saved yolo results from file: ./output/ball_2.pkl
+ball_2: YOLO Centroid (61.5, 61.5), Hough Centroid (61.0, 60.0), Distance: 1.58
+Use saved yolo results from file: ./output/ball_6.pkl
+ball_6: YOLO Centroid (78.0, 76.0), Hough Centroid (78.0, 75.0), Distance: 1.00
+Use saved yolo results from file: ./output/ball_5.pkl
+ball_5: YOLO Centroid (51.0, 48.5), Hough Centroid (51.0, 52.0), Distance: 3.50
+Use saved yolo results from file: ./output/ball_3.pkl
+ball_3: YOLO Centroid (42.5, 43.0), Hough Centroid (41.0, 40.0), Distance: 3.35
+Use saved yolo results from file: ./output/ball_4.pkl
+ball_4: YOLO Centroid (61.0, 61.0), Hough Centroid (60.0, 60.0), Distance: 1.41
+
+Statistical analysis of the errors:
+Mean: 1.9946 pixels
+Standard deviation: 1.0312 pixels
+Median: 1.4977 pixels
+```

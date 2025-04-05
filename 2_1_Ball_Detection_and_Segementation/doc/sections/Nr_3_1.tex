@@ -1,0 +1,165 @@
+\section{Segmentierung der Bälle}
+
+Im nächsten Schritt sollten nach der Klassifizierung der Bälle, die Segmentierung folgen. Hierfür sollte haupsächlich die Farbe des Balls hergenommen werden.
+
+In unserem Fall sollten Fußbälle segmentiert werden.
+
+Hier entstehen einige Schwierigkeiten:
+* Fußbälle haben typischerweise nicht immer die gleiche Farbe. Meistens sind sie weiß, allerdings nicht immer.
+* Fußbälle sind nicht einfärbig. Es gibt oft verschiedene Bereiche die eine andere Farbe haben.
+* Bälle im allgemeinen, sind auf ca 1/3 der Fläche des Bildes um einiges dunkler, da sie einen Schatten werfen, gerade wenn diese am Boden liegen. Das stellt eine Herausforderung bei der Segmentierung mittels der Farbe dar.
+
+Um die Bälle möglichst gut segmentieren zu können muss auf diese Schwierigkeiten geachtet werden und entsprechend verschiedene Ansätze getestet, die ein möglichst gute Segmentierung versprechen.
+
+
+## Aufteilung der Implementierung
+
+1. Erstellen oder einlesen des Ergebnisses vom YOLO Modell (sports ball boxes, image mit klassifizierung).
+2. Erstellen der Ball-Maske (Hier werden verschiedene Methoden getestet)
+3. Overlay der Ball-Maske auf das Originalbild erstellen.
+4. Erstellte Bilder anzeigen/speichern.
+
+
+
+## Erstellung der Ball-Maske
+
+Für die Erstellung der Ball-Maske wurde der Bereich der von YOLO-Modell erkannt wurde näher analysiert. Dabei wurde nicht genau der Bereich gewählt sondern, der Bereich in jede Richtung um 10 Pixel erweitert. Das hat den Grund, da das YOLO-Modell manche Bälle leicht abgeschnitten hat.
+
+Hierfür werden verschiedene Methoden getestet um die Bälle zu segmentieren.
+* Bild entsprechend mit Filtern vorbereiten und dann mit KMeans Algorithmus nach Farben segmentieren.
+    -> Wenn die Filter und Filterparameter entsprechend dem Bild gut gewählt werden funktioniert es relativ gut. Allerdings dann nicht allgemein für verschiedene Bälle mit verschiedenen Farben.
+    -> Filterung:
+        1. Bild verschwommen machen mit Gaussian-Blur.
+        2. KMeans-Segmentierung anwenden.
+        3. Bild in Graustufenbild umwandeln.
+        4. Threshold auf das Bild anwenden um es Weiß-Schwarz zu machen.
+        5. Morphologische Filter Open-Close anwenden um Artefakte zu entfernen.
+
+... (ganz kurze Beschreibung des Codes, dieser muss nicht ganz eingefügt werden):
+```python
+def create_ball_mask_with_kmeans(image, ball_box, k=3, threshold_value=100):
+    """
+    Creates a binary mask for the ball in the image using K-Means clustering.
+
+    :param image (np.ndarray): The input image (BGR format).
+    :param ball_box (tuple): Coordinates of the bounding box [x_min, y_min, x_max, y_max].
+    :param k (int): Number of clusters for K-Means segmentation (default is 3).
+    :param threshold_value (int): The threshold value to create a binary mask (default is 100).
+
+    :return np.ndarray: The binary mask of the ball.
+    """
+
+    x_min, y_min, x_max, y_max = ball_box
+    image_ball_box = image[y_min:y_max, x_min:x_max]
+
+    # Apply Gaussian Blur for better K-Means results
+    kernel_size = get_dynamic_kernel_size(image_ball_box, 0.1)
+    print(kernel_size)
+    blurred_image = cv2.GaussianBlur(image_ball_box, kernel_size, 0)
+
+    cv2.imshow("blurred_image", blurred_image)
+
+    # Apply K-Means to segment the image
+    image_segmented = apply_kmeans(blurred_image, k, 50)
+
+    cv2.imshow("image_segmented", image_segmented)
+
+    # Convert to grayscale for thresholding
+    gray_segmented = cv2.cvtColor(image_segmented, cv2.COLOR_BGR2GRAY)
+
+    # Apply thresholding
+    _, ball_mask = cv2.threshold(gray_segmented, threshold_value, 255, cv2.THRESH_BINARY)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    ball_mask = cv2.morphologyEx(ball_mask, cv2.MORPH_OPEN, kernel)   # Removes noise
+    ball_mask = cv2.morphologyEx(ball_mask, cv2.MORPH_CLOSE, kernel)  # Closes gaps
+
+    cv2.imshow("ball_mask", ball_mask)
+    return ball_mask
+```
+
+* Kantenerkennung mit Canny-Edge-Detector und Sobel-Edge-Detector
+    -> Keine guten Ergebnisse, man konnte damit garnichts anfangen. Nicht weiter verfolgt.
+* Bild entsprechend mit Filtern vorbereiten und dann Kreiserkennung mit `cv2.HoughCircles` den Ball erkennen.
+    -> Funktioniert ausgezeichnet gut. Die Bälle werden unabhängig von Spiegelung und Farbe sehr gut erkannt.
+    -> Filterung:
+        1. Bild in Graustufenbild umwandeln.
+        2. Bälle im Bild mit `HoughCircles` erkennen lassen.
+        3. Weiß-Schwarz Maske des erkannten Kreis erstellen.
+
+... (ganz kurze Beschreibung des Codes, dieser muss nicht ganz eingefügt werden):
+```python
+def create_ball_mask_with_edge_detection(image, ball_box):
+    """
+    Detects circles within a specified bounding box in an image using edge detection and Hough Circle Transform.
+
+    :param image (numpy.ndarray): The input image (BGR format).
+    :param ball_box (tuple): A tuple (x_min, y_min, x_max, y_max) representing the coordinates of the bounding box.
+
+    :return tuple:
+            - ball_mask (numpy.ndarray): A binary mask of the detected circles within the bounding box.
+            - detected_circles (list): A list of tuples, where each tuple represents a detected circle
+              in the format (x, y, radius).
+    """
+    # Bounding box coordinates
+    x_min, y_min, x_max, y_max = ball_box
+
+    # Crop the region of interest (ROI) from the original image based on the bounding box
+    image_ball_box = image[y_min:y_max, x_min:x_max].copy()
+
+    # Convert the cropped image to grayscale for edge detection
+    gray = cv2.cvtColor(image_ball_box.copy(), cv2.COLOR_BGR2GRAY)
+
+    # Apply Gaussian blur to reduce noise and improve circle detection
+    gray_blurred = cv2.GaussianBlur(gray, (15, 15), 0)
+
+    # Detect circles using Hough Circle Transform
+    # - dp: Inverse ratio of resolution
+    # - minDist: Minimum distance between detected centers
+    # - param1: Upper threshold for Canny edge detector
+    # - param2: Threshold for center detection
+    # - minRadius and maxRadius: Limits for circle size
+    circles = cv2.HoughCircles(
+        gray_blurred, cv2.HOUGH_GRADIENT, dp=1.4, minDist=100,
+        param1=50, param2=30, minRadius=10, maxRadius=500
+    )
+
+    ball_mask = np.zeros_like(image_ball_box)
+    detected_circles = []
+    if circles is not None:
+        circles = np.round(circles[0, :]).astype("int")
+        for (x, y, r) in circles:
+            # Draw a filled white circle on the mask at the detected location
+            cv2.circle(ball_mask, (x, y), r, (255, 255, 255), -1)
+            detected_circles.append((x, y, r))
+
+    return ball_mask, detected_circles
+```
+
+
+
+## Ball im Bild segmentieren
+
+Nach der Erstellung der Ball-Maske kann diese auf das ursprüngliche Bild angewandt werden. 
+Hierfür wird ... (ganz kurze Beschreibung des Codes, dieser muss nicht ganz eingefügt werden):
+
+```python
+image_ball_box = image[y_min:y_max, x_min:x_max].copy()
+
+# Create red overlay color for the same region
+overlay_color = np.full_like(image_ball_box, (0, 0, 255), dtype=np.uint8)
+
+# Apply mask to the overlay
+mask_indices = ball_mask > 0
+image_ball_box[mask_indices] = ((1 - alpha) * image_ball_box[mask_indices] + alpha * overlay_color[mask_indices]).astype(np.uint8)
+
+# Place modified region back into the original image
+image_with_overlay = image.copy()
+image_with_overlay[y_min:y_max, x_min:x_max] = image_ball_box
+```
+
+
+
+
+
+

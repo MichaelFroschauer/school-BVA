@@ -14,8 +14,8 @@ Implementation should contain the subsequent method definitions (given in Java-S
 
 [4] Visualization II: Visualize the 3D color density topography.
 """
-
 import numpy as np
+from joblib import Parallel, delayed
 
 """
 for p in copied_points: while !convergence: p = mean_shift(p, original_points)
@@ -39,44 +39,74 @@ def mean_shift_color_pixel(in_pixels: np.ndarray, bandwidth: float, epsilon: flo
 
     converged = False
     iter_count = 0
-    clusters_original = []
     clusters_centered = []
+    clusters_original = []
     still_shifting = [True] * shifted_pixels.shape[0]
+
     while not converged and iter_count < max_iter:
+        results = Parallel(n_jobs=-1)(
+            delayed(process_pixel)(i, shifted_pixels[i], still_shifting[i], original_pixels, bandwidth, epsilon)
+            for i in range(shifted_pixels.shape[0])
+        )
+
         converged = True
-        for i, p in enumerate(shifted_pixels):
-            if not still_shifting[i]:
-                continue
-            new_p = mean_shift_step(p, original_pixels, bandwidth)
-            distance = color_dist(np.array(new_p),  np.array(p))
-            if distance < epsilon:
-                still_shifting[i] = False
-            else:
-                shifted_pixels[i] = new_p
+        for i, new_p, still_moving in results:
+            shifted_pixels[i] = new_p
+            still_shifting[i] = still_moving
+            if still_moving:
                 converged = False
 
         iter_count += 1
         if iteration_callback:
             iteration_callback(shifted_pixels, iter_count, in_pixels.shape)
 
-    for i, p in enumerate(shifted_pixels):
-        add_point_to_clusters(clusters_centered, clusters_original, p, original_pixels[i], epsilon)
+    if iter_count >= max_iter:
+        print("Maximum number of iterations reached. Clusters cannot be generated.")
+    else:
+        for i, p in enumerate(shifted_pixels):
+            add_point_to_clusters(clusters_centered, clusters_original, p, original_pixels[i], epsilon)
 
-    shifted_pixels = shifted_pixels.reshape(in_pixels.shape)
-    return shifted_pixels, clusters_original
+    out_pixels = shifted_pixels.reshape(in_pixels.shape)
+    cluster_centers = get_centroids(clusters_centered)
+    return out_pixels, clusters_original, cluster_centers
+
+
+def process_pixel(i, p, active, original_pixels, bandwidth, epsilon):
+    if not active:
+        return (i, p, False)
+
+    new_p = mean_shift_step(p, original_pixels, bandwidth)
+    distance = color_dist(new_p, p)
+
+    if distance < epsilon:
+        return (i, p, False)
+    else:
+        return (i, new_p, True)
 
 
 def add_point_to_clusters(clusters_centered, clusters_original, clustered_point, original_point, epsilon: float):
     for i, cluster_centered in enumerate(clusters_centered):
         for point in cluster_centered:
             dist = np.linalg.norm(np.array(clustered_point) - np.array(point))
-            if dist <= epsilon + 0.05:
+            if dist <= epsilon:
                 clusters_centered[i].append(clustered_point)
                 clusters_original[i].append(original_point)
                 return
     # If no suitable cluster was found, create a new cluster
     clusters_centered.append([clustered_point])
     clusters_original.append([original_point])
+
+
+def get_centroids(clusters_centered):
+    """
+    Get the centroids for all clusters.
+
+    :param clusters_centered: List of clusters where each cluster is a list of points
+    :return: List of centroids, one for each cluster
+    """
+    centroids = [np.mean(cluster, axis=0) for cluster in clusters_centered]
+    return centroids
+
 
 """
 [x,y] mean_shift(p, original_points):
@@ -123,7 +153,7 @@ def color_dist(ref_color: np.ndarray, curr_color: np.ndarray) -> float:
     :param curr_color: Current color as a NumPy array of shape (3,)
     :returns: The Euclidean distance between the two colors
     """
-    return np.linalg.norm(ref_color - curr_color).astype(float)
+    return float(np.linalg.norm(ref_color - curr_color))
 
 def gaussian_weight(dist: float, bandwidth: float) -> float:
     """

@@ -199,7 +199,7 @@ def plot_rgb_density(image_rgb, bandwidth=20.0, sample=10000):
     plt.show()
 
 
-image = cv2.imread("../img/color_monkey_small.jpg")
+image = cv2.imread("../img/color_monkey_s.jpg")
 
 img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 plot_rgb_density(img, bandwidth=20.0)

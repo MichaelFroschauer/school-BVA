@@ -1,15 +1,12 @@
+import cv2
+from kMeansClusting import *
 
-import numpy as np
+
+image = cv2.imread("landscape_small.jpg")
+image_copy = image.copy()
+k_image = apply_kmeans(image_copy, 20, 5)
+cv2.imshow("k_image_20_5", k_image)
 
 
-a = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-
-b = np.array([[104, 105, 106]])
-
-#movementOverlay[motionMask[..., 0] > 0] = [0, 0, 255]
-
-c = a[..., 0]
-d = a[:, 0]
-
-print(c)
-print(d)
+cv2.waitKey(0)
+cv2.destroyAllWindows()

@@ -10,17 +10,17 @@ import glob
 import time
 
 # Test with checkerboard or circles grid
-checkerboard_test_image = False
+checkerboard_test_image = True
 
 # Extracting path of individual image stored in a given directory
 outFilePath = "/home/michael/school/gitclones/2_BVA/1_2_Camera_Calibration/recordings/"
-numOfFrames = 10  # frames to record
-numOfValidFrames = 10
+numOfFrames = 5  # frames to record
+numOfValidFrames = 5
 timeDelayInSecs = 0.8
 
 # Choose the webcam
-#inVideoPath = 0 # integrated webcam
-inVideoPath = 2  # external webcam
+inVideoPath = 0 # integrated webcam
+#inVideoPath = 2  # external webcam
 
 
 

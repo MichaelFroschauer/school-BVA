@@ -1,22 +1,43 @@
-import math
 import numpy as np
+import matplotlib
+# matplotlib.use("Agg") # useful for a webserver case where you don't want to ever visualize the result live.
+from matplotlib import cm
+import matplotlib.pyplot as plt
+from matplotlib.animation import PillowWriter
+matplotlib.use('Qt5Agg')
 
-p1 = np.array([0, 0, 0])
-p2 = np.array([3, 4, 0])
-
-r = np.linalg.norm(p1 - p2).astype(float)
-print(r)
-
-
-
-def gaussian_kernel(distance, bandwidth):
-    return (1 / (bandwidth * math.sqrt(2 * math.pi))) * np.exp(-0.5 * (distance / bandwidth) ** 2)
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 
+metadata = dict(title='Movie', artist='codinglikemad')
+#writer = PillowWriter(fps=15, metadata=metadata)
 
-def gaussian_weight(dist, bandwidth):
-    return np.exp(- (dist ** 2) / (2 * bandwidth ** 2))
+fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+
+plt.xlim(-5, 5)
+plt.ylim(-5, 5)
 
 
-print("gaussian_kernel: " + str(gaussian_kernel(3.0, 4.5)))
-print("gaussian_weight: " + str(gaussian_weight(3.0, 4.5)))
+def func(x,y,r,t):
+    return np.cos(r/2+t)*np.exp(-np.square(r)/50)
+
+xvec = np.linspace(-10, 10, 1000)
+yvec = np.linspace(-10, 10, 1000)
+
+xlist, ylist = np.meshgrid(xvec, yvec)
+
+rlist = np.sqrt( np.square(xlist) + np.square(ylist) )
+
+#with writer.saving(fig, "exp3d.gif", 100):
+for tval in np.linspace(0,20,160):
+    print(tval)
+    zval = func(xlist,ylist,rlist, tval)
+    ax.set_zlim(-1, 1)
+    ax.plot_surface(xlist,ylist,zval,cmap=cm.viridis)
+
+    #writer.grab_frame()
+    plt.pause(0.001)
+    plt.cla()
+
+plt.show()

@@ -6,6 +6,13 @@ from PIL import Image
 
 
 def visualize_meanshift_clusters_2d(points, center_points=None, image_path=""):
+    """
+    Visualizes clustered 2D points and optional center points using scatter plots.
+
+    :param points: List of clusters, each cluster is a list of 2D points
+    :param center_points: Optional list of 2D center points
+    :param image_path: Optional file path to save the resulting plot
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111)
     colors = mpl.colormaps["viridis"].resampled(len(points))
@@ -24,6 +31,14 @@ def visualize_meanshift_clusters_2d(points, center_points=None, image_path=""):
 
 
 def visualize_meanshift_clusters_3d(points, center_points=None, image_path="", graph_title=""):
+    """
+    Visualizes clustered 3D points in RGB space with optional center points.
+
+    :param points: List of clusters, each cluster is a list of 3D RGB points
+    :param center_points: Optional list of 3D center points
+    :param image_path: Optional file path to save the resulting plot
+    :param graph_title: Optional title for the plot
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     for idx, cluster in enumerate(points):
@@ -50,6 +65,13 @@ def visualize_meanshift_clusters_3d(points, center_points=None, image_path="", g
 
 
 def visualize_color_space_as_gif(image_steps, gif_path, gif_title=""):
+    """
+    Creates a rotating 3D GIF animation of color points in RGB space.
+
+    :param image_steps: List of numpy arrays representing point sets at different steps
+    :param gif_path: Output file path for the GIF
+    :param gif_title: Optional title shown in the plot
+    """
     print(f"Create GIF: {gif_path}")
     writer = PillowWriter(fps=10)
     fig = plt.figure()
@@ -85,6 +107,13 @@ def visualize_color_space_as_gif(image_steps, gif_path, gif_title=""):
 
 
 def visualize_image_space_as_gif(image_list, output_filename, duration=100):
+    """
+    Creates a GIF from a sequence of image frames (in image/pixel space).
+
+    :param image_list: List of numpy images (height x width x channels)
+    :param output_filename: Path to save the GIF
+    :param duration: Frame duration in milliseconds
+    """
     pil_images = []
 
     for img in image_list:

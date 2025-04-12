@@ -14,6 +14,8 @@ Implementation should contain the subsequent method definitions (given in Java-S
 
 [4] Visualization II: Visualize the 3D color density topography.
 """
+import math
+
 import numpy as np
 from joblib import Parallel, delayed
 
@@ -56,9 +58,10 @@ def mean_shift_color_pixel(in_pixels: np.ndarray, bandwidth: float, epsilon: flo
     still_shifting = [True] * shifted_pixels.shape[0]
 
     while not converged and iter_count < max_iter:
-        curr_shifted_pixels = shifted_pixels.copy()
+        #curr_shifted_pixels = shifted_pixels.copy()
         results = Parallel(n_jobs=-1)(
-            delayed(process_pixel)(i, shifted_pixels[i], still_shifting[i], curr_shifted_pixels, bandwidth, epsilon)
+            delayed(process_pixel)(i, shifted_pixels[i], still_shifting[i], original_pixels, bandwidth, epsilon)
+            #delayed(process_pixel)(i, shifted_pixels[i], still_shifting[i], curr_shifted_pixels, bandwidth, epsilon)
             for i in range(shifted_pixels.shape[0])
         )
 
@@ -97,14 +100,15 @@ def process_pixel(i, p, active, original_pixels, bandwidth, epsilon):
     :param epsilon: Convergence threshold
     :returns: Tuple (index, new pixel position, still active)
     """
-    if not active:
-        return (i, p, False, 0.0)
+    # tried optimization (converged pixels are not checked anymore)
+    # if not active:
+    #     return (i, p, False, 0.0)
 
     new_p = mean_shift_step(p, original_pixels, bandwidth)
     distance = color_dist(new_p, p)
 
     if distance < epsilon:
-        return (i, p, False, distance)
+        return (i, new_p, False, distance)
     else:
         return (i, new_p, True, distance)
 
@@ -190,6 +194,18 @@ def gaussian_weight(dist: float, bandwidth: float) -> float:
 
 
 class MeanShiftStepData:
+    """
+    Stores and analyzes data for a single iteration step in the Mean Shift clustering process.
+
+    Attributes:
+        shifted_pixels (np.ndarray): The pixel positions after shifting in the current iteration.
+        current_iteration (int): The current iteration number.
+        max_iteration (int): The maximum number of iterations allowed.
+        original_image_shape (tuple): The shape of the original image (height, width, channels).
+        converged_pixel (int): Number of pixels that have converged in the current iteration.
+        total_pixels (int): Total number of pixels being processed.
+        average_pixel_distance_from_centroid (float): Mean distance of pixels to their current centroid.
+    """
     def __init__(self, shifted_pixels, current_iteration, max_iteration, original_image_shape, step_results):
         self.shifted_pixels = shifted_pixels
         self.current_iteration = current_iteration

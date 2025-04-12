@@ -1,0 +1,84 @@
+\section{Mean Shift Clustering Algorithmus}
+
+Ziel ist es, einen \textbf{Mean Shift Clustering Algorithmus} zu entwickeln, der allein basierend auf der \textit{Bandwidth} Farbcluster in Farbbildern erkennen und gruppieren kann.
+
+Die \textbf{Bandwidth} definiert dabei den Radius der Nachbarschaft (Einflussbereich) eines Punktes im Merkmalsraum – hier also im Farbraum. Sie bestimmt also, wie weit entfernte Punkte noch zur Berechnung eines neuen Schwerpunkts berücksichtigt werden. Eine zu große Bandwidth führt zu wenigen, groben Clustern, während eine zu kleine Bandwidth viele, feinere Cluster erzeugt.
+
+\subsection*{Funktionsweise des Algorithmus}
+
+Der Mean Shift Algorithmus basiert auf einem iterativen Verfahren, bei dem Datenpunkte (hier: Pixel im Farbraum) in Richtung dichterer Regionen verschoben werden. Dazu erfolgt in jeder Iteration Folgendes:
+
+
+\begin{itemize}
+    \item Für jeden Pixel wird die \textbf{euklidische Distanz} zu allen anderen Pixeln berechnet.
+    \item Anhand dieser Distanzen wird mittels eines \textbf{Gauß-Kernels} ein gewichteter Mittelwert gebildet.
+    \item Der Pixel wird in Richtung dieses gewichteten Schwerpunkts verschoben.
+    \item Dieser Schritt wird wiederholt, bis entweder alle Pixel \textbf{konvergiert} sind (d.\,h. ihre Verschiebung ist kleiner als ein definierter Schwellwert~$\varepsilon$) oder eine maximale Anzahl an Iterationen erreicht wurde.
+\end{itemize}
+
+Durch dieses Verfahren bewegen sich die Pixel in Regionen höherer Dichte im Farbraum, was zu einer automatischen Gruppierung (Clustering) führt. Ein großer Vorteil: Die Anzahl der Cluster muss im Vorhinein nicht bekannt sein.
+
+\subsection*{Parallele Umsetzung}
+
+Da die Verschiebung jedes Pixels unabhängig von anderen Punkten innerhalb einer Iteration erfolgt, eignet sich der Algorithmus sehr gut zur \textbf{Parallelisierung}. Dadurch kann die Rechenzeit erheblich reduziert werden.
+
+\subsection*{Zentrale Hauptfunktion}
+
+Die Hauptfunktion \texttt{mean\_shift\_color\_pixel} ist das Herzstück des Algorithmus:
+
+\begin{verbatim}
+def mean_shift_color_pixel(in_pixels: np.ndarray, bandwidth: float, epsilon: float = 1e-3, max_iter: int = 1000, iteration_callback=None)
+\end{verbatim}
+
+Diese Funktion verschiebt iterativ alle Eingabepixel im Farbraum zu Bereichen höherer Dichte mithilfe des Mean Shift Algorithmus und eines Gauß-Kernels. Sobald alle Pixel konvergiert sind oder die maximale Iterationsanzahl erreicht ist, werden die zugehörigen Cluster und deren Schwerpunkte ermittelt und zurückgegeben. Optional kann ein Callback zur Visualisierung zwischengeschaltet werden.
+
+\subsection*{Verarbeitung einzelner Pixel}
+
+Die folgende Funktion wird parallel von der Hauptfunktion aufgerufen. Sie prüft zunächst, ob der Pixel bereits konvergiert ist (um unnötige Rechenzeit zu sparen). Falls nicht, wird ein einzelner Mean Shift Schritt berechnet.
+
+\begin{verbatim}
+def process_pixel(i, p, active, original_pixels, bandwidth, epsilon)
+\end{verbatim}
+
+\subsection*{Mean Shift Schritt}
+
+Ein einzelner Iterationsschritt im Mean Shift Algorithmus besteht darin, für jedes Pixel den neuen Schwerpunkt basierend auf den benachbarten Punkten innerhalb einer definierten Bandwidth zu berechnen. Der neue Mittelpunkt eines Pixels wird durch das gewichtete Mittel der benachbarten Punkte bestimmt, wobei die Gewichtung durch den Abstand der Pixel zueinander festgelegt wird. Dieser Abstand wird üblicherweise durch eine euklidische Distanz gemessen und mit einer Gaußschen Gewichtsfunktion skaliert. Die Berechnung erfolgt, indem die benachbarten Pixel gewichtet werden, wobei näher gelegene Pixel einen höheren Einfluss auf den neuen Mittelpunkt haben.
+
+\begin{verbatim}
+def mean_shift_step(p: np.ndarray, points: np.ndarray, bandwidth: float) -> np.ndarray
+\end{verbatim}
+
+
+\subsection*{Weitere Hilfsfunktionen}
+
+\begin{itemize}
+    \item \texttt{color\_dist(p1, p2)} \\
+    Berechnet die euklidische Distanz zwischen zwei Farbwerten $p_1$ und $p_2$.
+
+    \item \texttt{gaussian\_weight(dist, bandwidth)} \\
+    Ermittelt die Gewichtung eines Nachbarpunkts in Abhängigkeit seiner Distanz und der Bandwidth mithilfe einer Gauß-Verteilung.
+
+    \item \texttt{add\_point\_to\_clusters(...)} \\
+    Gruppiert alle konvergierten Pixel zu Clustern und speichert die ursprünglichen Farben sowie die Schwerpunkte.
+
+    \item \texttt{get\_centroids(...)} \\
+    Berechnet den finalen Schwerpunkt (Centroid) jedes Clusters aus den enthaltenen Pixeln.
+\end{itemize}
+
+\subsection*{Benutzereingaben}
+
+Der Benutzer muss lediglich:
+
+\begin{itemize}
+    \item die Eingabedaten (Bilddaten als Array) und
+    \item die gewünschte Bandwidth
+\end{itemize}
+
+bereitstellen. Der Algorithmus liefert anschließend:
+\begin{itemize}
+    \item das verschobene Bild (alle Pixel im Clustermittelpunkt),
+    \item die zugehörigen Clusterlisten und
+    \item die errechneten Schwerpunkte der Cluster.
+\end{itemize}
+
+\newpage

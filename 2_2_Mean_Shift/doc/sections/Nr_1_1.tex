@@ -1,0 +1,61 @@
+\section{Mean Shift Clustering Algorithmus}
+
+Ziel ist es einen Mean Shift Clustering Algorithmus zu entwickeln der nur aufgrund einer bandwidth (... was ist das?) Farbcluster von Farbbildern erstellen kann.
+
+Hierfür werden innerhalb einer Iteration die Abstände von einem Pixel zu jedem anderen Pixel mittels der euklidischen Distanz berechnet. Anschließend wird je nach Gewichtung das Pixel zu den entsprechenden Schwerpunkten der Cluster verschoben. (Ist das so richtig, kann man das besser erklären?) Diese Schritte werden wiederholt bis entweder eine maximale Anzahl an Iterationen erreicht ist oder alle Pixel konvergiert (also nahe genug am Schwerpunkt) sind.
+
+
+
+
+
+Die einzelnen Schritte im Mean Shift algorithmus wurden auf verschiedene Funktionen in logische einheiten aufgeteilt. Da der Mean Shift Algorithmus sehr rechenintensiv ist allerdings die Berechung innerhalb einer iteration keine Abhängigkeiten zueinander hat, kann der Algorithmus sehr gut parallisiert werden.
+
+
+Diese Hauptfunktion verschiebt iterativ alle Eingabepixel im Farbraum in Bereiche mit höherer Dichte,
+unter Verwendung des Mean-Shift-Algorithmus mit einem Gauß-Kernel. Die Verschiebung stoppt, wenn alle Pixel
+konvergiert haben (d. h., ihre Positionsänderungen liegen unter dem Epsilon-Schwellenwert) oder die maximale Anzahl
+der Iterationen erreicht ist. Optional kann ein Callback verwendet werden, um Zwischenergebnisse zu visualisieren.
+
+Wirklich benötigt wird vom Benutzer nur die Eingabedaten und die gewünschte Bandwidth. Es wird dann berechnet welcher ursprünglich Punkt zu welchem Cluster gehört und wo die Schwerpunkte der Cluster liegen. Diese Informationen werden anschließen dem Rufer zurückgegeben.
+```python
+def mean_shift_color_pixel(in_pixels: np.ndarray, bandwidth: float, epsilon: float = 1e-3, max_iter: int = 1000, iteration_callback=None):
+```
+
+
+Diese Funktion wird parallel von der Hauptfunktion aufgerufen und bestimmt, ob ein Pixel bereits konvergiert ist, ist dass der Fall wird diese übersprungen um rechenzeit zu sparen, andernfalls wird ein Mean Shift Schritt in der Funktion `mean_shift_step` ausgeführt.
+
+```python
+def process_pixel(i, p, active, original_pixels, bandwidth, epsilon):
+```
+
+
+.....
+(Bitte kurz unbd gleich beschreiben wie drüber was hier passiert)
+
+```python
+def mean_shift_step(p: np.ndarray, points: np.ndarray, bandwidth: float) -> np.ndarray:
+    shift = np.zeros(p.shape)
+        total_weight = 0.0
+
+        for p_temp in points:
+            dist = color_dist(p, p_temp)
+            weight = gaussian_weight(dist, bandwidth)
+            shift += p_temp * weight
+            total_weight += weight
+
+        if total_weight == 0:
+            return p
+
+        return shift / total_weight
+```
+
+
+Andere Funktionen:
+- `color_dist`: Berechnet die euklidische Distanz zwischen zwei Pixeln im Farbraum.
+- `gaussian_weight`: Berechnet die Gewichtung (dist und bandwidth...)
+- `get_centroids`: Berechnet den Schwerpunkt der Cluster
+- `add_point_to_clusters`: Erstellt eine Liste von Listen welche die zusammengehörigen Pixel der entsprechenden Cluster zusammenfasst.
+
+
+
+\newpage

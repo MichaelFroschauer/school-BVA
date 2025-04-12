@@ -1,7 +1,147 @@
-\section{Aufgabe 2}
+\section{Tests und Visualisierung}
 
-%\lstinputlisting[language=c, firstline=1, lastline=100]{sudoku_solver.c}
+Da die Berechnung des Mean Shift Algorithmus sehr rechenintensiv ist, wurden während der Entwicklung zunächst nur Testläufe mit einem kleinen 40x40 Pixel großen Bild sowie mit zweidimensionalen CSV-Daten durchgeführt.
+
+\subsection*{Clustering mit 2D-Daten}
+
+Abbildung \ref{fig:csv_result} zeigt das Clustering-Ergebnis der 2D-Punkte aus einer CSV-Datei. Durch die farbliche Segmentierung der einzelnen Cluster ist bereits gut erkennbar, dass das Verfahren korrekt arbeitet. \\
+
+\noindent
+Eingabedaten:
+\begin{verbatim}
+10.91079038931762,8.3894120169044477
+9.8750016454811416,9.9092509004598295
+...
+\end{verbatim}
+
+\noindent
+Ergebnis: 
+\includeImgNoUrl{H}{width=0.7\textwidth}{img/mean_shift_result_csv_data.png}{Ergebnis mit Farbsegmentierung im 2D-Bereich}{fig:csv_result}{\centering}
+
+\newpage
+
+\subsection*{Animationsbasierte Visualisierung}
+
+Für jede Iteration wird der aktuelle Zustand gespeichert, um eine animierte Darstellung des Clusterprozesses zu ermöglichen. Alle Animationen sind im Anhang als GIF-Dateien verfügbar.
+
+Um das Verhalten des Mean Shift Algorithmus über mehrere Iterationen hinweg besser nachvollziehbar zu machen, wurden die Zustände nach jeder Iteration gespeichert und als animierte GIFs dargestellt. Diese Visualisierungen zeigen sowohl im Color Space als auch im Image Space, wie sich die einzelnen Pixel zu ihren jeweiligen Clusterzentren bewegen und wie sich die Cluster im Laufe der Berechnungen entwickeln. Alle Animationen sind im Anhang als GIF-Dateien verfügbar und bieten eine anschauliche Darstellung der Clusterbildungsprozesse.
+
+\subsection*{Verwendete Testbilder}
+
+Für die Evaluierung des Mean Shift Clustering Algorithmus wurden zwei Testbilder gewählt:
+
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.5\linewidth}{img/color_monkey_xs.jpg}{Testbild: Color Monkey}{fig:color_monkey}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.5\linewidth}{img/bird_xs.png}{Testbild: Bird}{fig:bird}{\centering}
+\end{minipage}
+
+Beide Bilder wurden in reduzierter Auflösung verwendet, um die Rechenzeit zu verringern.
+
+\subsection*{Vergleich: Color Monkey – unterschiedliche Bandwidths}
+
+Die Wahl der Bandwidth hat einen wesentlichen Einfluss auf die Ergebnisse des Mean Shift Algorithmus. Eine zu kleine Bandwidth führt zu einer Fragmentierung der Cluster, während eine zu große Bandwidth dazu führen kann, dass mehrere Cluster zu einem einzigen zusammengefasst werden.
+
+In den folgenden Abbildungen sind die Ergebnisse des Mean Shift Algorithmus mit unterschiedlichen Bandwidth-Werten für das \textit{Color Monkey}-Testbild dargestellt.
+
+\begin{minipage}[t]{0.23\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/color_monkey_xs_5.0_im.png}{Bandwidth 5.0}{fig:cm_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.23\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/color_monkey_xs_10.0_im.png}{Bandwidth 10.0}{fig:cm_10}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.23\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/color_monkey_xs_20.0_im.png}{Bandwidth 20.0}{fig:cm_20}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.23\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/color_monkey_xs_30.0_im.png}{Bandwidth 30.0}{fig:cm_530}{\centering}
+\end{minipage}
+
+\newpage
+
+\subsection*{Vergleich: Bird – unterschiedliche Bandwidths}
+
+Ähnlich wie beim \textit{Color Monkey}-Testbild zeigt sich bei den \textit{Bird}-Testbildern, dass die Clusterbildung bei unterschiedlichen Bandwidth-Werten variiert. Die folgenden Abbildungen verdeutlichen, wie der Algorithmus auf größere bzw. kleinere Bandwidth-Werte reagiert.
+
+\begin{minipage}[t]{0.30\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/bird_xs_5.0_im.png}{Bandwidth 5.0}{fig:bird_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.30\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/bird_xs_10.0_im.png}{Bandwidth 10.0}{fig:bird_10}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.30\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/bird_xs_40.0_im.png}{Bandwidth 40.0}{fig:bird_40}{\centering}
+\end{minipage}
+
+\newpage
+
+\subsection*{Vorher-Nachher Vergleich im Farbraum}
+
+Die folgenden Abbildungen zeigen den Unterschied zwischen dem ursprünglichen Farbraum der Testbilder und dem Farbraum nach der Clusterbildung.
+
+\textbf{Color Monkey:}
+
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/color_monkey_xs_30.0_cs_before.png}{Vor Mean Shift – Bandwidth 30.0}{fig:cm_cs_before}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/color_monkey_xs_30.0_cs_after.png}{Nach Mean Shift – Bandwidth 30.0}{fig:cm_cs_after}{\centering}
+\end{minipage}
 
 
+\vspace{0.5cm}
+\textbf{Bird:}
+
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/bird_xs_40.0_cs_before.png}{Vor Mean Shift – Bandwidth 40.0}{fig:bird_cs_before}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/bird_xs_40.0_cs_after.png}{Nach Mean Shift – Bandwidth 40.0}{fig:bird_cs_after}{\centering}
+\end{minipage}
+
+\newpage
+
+\subsection*{Grenzen des Verfahrens bei geringer Bandwidth}
+
+Bei sehr kleinen Bandwidth-Werten führt der Mean Shift Algorithmus zu keinem sinnvollen Ergebnis, da die Cluster zu stark fragmentiert werden und keine sinnvolle Gruppierung entsteht. In folgenden Abbildungen sind die schlechten Ergebnisse mit einer Bandwidth von 10.0 zu sehen.
+
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/color_monkey_xs_10.0_cs_after.png}{Color Monkey – Bandwidth 10.0}{fig:bad_cm}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/bird_xs_10.0_cs_after.png}{Bird – Bandwidth 10.0}{fig:bad_bird}{\centering}
+\end{minipage}
+
+
+\subsection*{Konsolenausgabe zur Laufzeit}
+
+Während des Clustering-Prozesses wird die Fortschrittsanzeige regelmäßig auf der Konsole ausgegeben.
+
+\begin{itemize}
+    \item Anzahl der konvergierten Pixel
+    \item Durchschnittlicher Abstand der Pixel zu ihrem Schwerpunkt (Centroid)
+    \item Aktueller Iterationsschritt und Bildgröße
+\end{itemize}
+
+Ein Beispiel für die Konsolenausgabe:
+
+\begin{verbatim}
+Start mean shift clustering with image: color_monkey_xs.jpg
+                                        bandwidth: 20.0 for 1600 pixels
+Iteration 1 (Max Iteration: 2000, Image size: 40 x 40):
+    Number of converged pixels: 11/1600
+    Average distance of the pixels from their centroid: 21.5346
+...
+\end{verbatim}
 
 \newpage

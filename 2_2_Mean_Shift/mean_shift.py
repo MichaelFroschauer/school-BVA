@@ -17,19 +17,31 @@ Implementation should contain the subsequent method definitions (given in Java-S
 import numpy as np
 from joblib import Parallel, delayed
 
-"""
-for p in copied_points: while !convergence: p = mean_shift(p, original_points)
-"""
-def mean_shift_color_pixel(in_pixels: np.ndarray, bandwidth: float, epsilon: float = 1e-3, max_iter: int = 100, iteration_callback=None):
-    """
-    Performs one complete Mean Shift optimization run.
 
-    :param in_pixels: List of color vectors (each a NumPy array of shape (3,))
+def mean_shift_color_pixel(in_pixels: np.ndarray, bandwidth: float, epsilon: float = 1e-3, max_iter: int = 1000, iteration_callback=None):
+    """
+    Performs one complete Mean Shift optimization run on a set of pixel color values.
+
+    This function iteratively shifts all input pixels in color space towards areas of higher density,
+    using the Mean Shift algorithm with a Gaussian kernel. The shifting stops when all pixels have
+    converged (i.e., their position changes are below the epsilon threshold), or the maximum number
+    of iterations is reached. Optionally, a callback can be used to visualize intermediate results.
+
+    :param in_pixels: Input image as a NumPy array of shape (H, W, 3) or flattened (N, 3),
+                      where each pixel is represented by an RGB color vector.
     :param bandwidth: The radius of influence for shifting (i.e., the bandwidth)
-    :param epsilon:
-    :param max_iter:
-    :param iteration_callback:
-    :returns: A list of shifted pixel color vectors (potential cluster centers)
+    :param epsilon: Convergence threshold. If the shift for a pixel in one iteration is less than this
+                    value, the pixel is considered to have converged.
+    :param max_iter: Maximum number of iterations to perform before stopping the algorithm.
+    :param iteration_callback: Optional function called after each iteration. Receives the current
+                               shifted pixel array, iteration count, and original image shape.
+    :returns: A tuple containing:
+        - out_pixels: The final shifted image (same shape as in_pixels). Each pixel has been moved
+                      in RGB color space to the mode of its local neighborhood.
+        - clusters_original: A list of lists, where each inner list contains the original pixels that
+                             belong to the same cluster.
+        - cluster_centers: A list of cluster centers, computed as the centroid of all shifted points
+                           assigned to that cluster.
     """
     original_pixels = in_pixels.copy()
     shifted_pixels = in_pixels.copy()
@@ -44,21 +56,23 @@ def mean_shift_color_pixel(in_pixels: np.ndarray, bandwidth: float, epsilon: flo
     still_shifting = [True] * shifted_pixels.shape[0]
 
     while not converged and iter_count < max_iter:
+        curr_shifted_pixels = shifted_pixels.copy()
         results = Parallel(n_jobs=-1)(
-            delayed(process_pixel)(i, shifted_pixels[i], still_shifting[i], original_pixels, bandwidth, epsilon)
+            delayed(process_pixel)(i, shifted_pixels[i], still_shifting[i], curr_shifted_pixels, bandwidth, epsilon)
             for i in range(shifted_pixels.shape[0])
         )
 
         converged = True
-        for i, new_p, still_moving in results:
-            shifted_pixels[i] = new_p
-            still_shifting[i] = still_moving
+        for j, new_p, still_moving, _ in results:
+            shifted_pixels[j] = new_p
+            still_shifting[j] = still_moving
             if still_moving:
                 converged = False
 
         iter_count += 1
         if iteration_callback:
-            iteration_callback(shifted_pixels, iter_count, in_pixels.shape)
+            step_data = MeanShiftStepData(shifted_pixels, iter_count, max_iter, in_pixels.shape, results)
+            iteration_callback(step_data)
 
     if iter_count >= max_iter:
         print("Maximum number of iterations reached. Clusters cannot be generated.")
@@ -72,23 +86,43 @@ def mean_shift_color_pixel(in_pixels: np.ndarray, bandwidth: float, epsilon: flo
 
 
 def process_pixel(i, p, active, original_pixels, bandwidth, epsilon):
+    """
+    Processes a single pixel in the Mean Shift optimization step.
+
+    :param i: Index of the current pixel
+    :param p: Current position of the pixel
+    :param active: Boolean indicating whether this pixel is still moving
+    :param original_pixels: All original pixel positions
+    :param bandwidth: The bandwidth for the kernel
+    :param epsilon: Convergence threshold
+    :returns: Tuple (index, new pixel position, still active)
+    """
     if not active:
-        return (i, p, False)
+        return (i, p, False, 0.0)
 
     new_p = mean_shift_step(p, original_pixels, bandwidth)
     distance = color_dist(new_p, p)
 
     if distance < epsilon:
-        return (i, p, False)
+        return (i, p, False, distance)
     else:
-        return (i, new_p, True)
+        return (i, new_p, True, distance)
 
 
 def add_point_to_clusters(clusters_centered, clusters_original, clustered_point, original_point, epsilon: float):
+    """
+    Adds a point to the appropriate cluster or creates a new one if no match is found.
+
+    :param clusters_centered: List of cluster centers (each a list of shifted points)
+    :param clusters_original: List of corresponding original points for each cluster
+    :param clustered_point: The shifted point to be clustered
+    :param original_point: The corresponding original pixel
+    :param epsilon: Distance threshold for considering points as part of the same cluster
+    """
     for i, cluster_centered in enumerate(clusters_centered):
         for point in cluster_centered:
-            dist = np.linalg.norm(np.array(clustered_point) - np.array(point))
-            if dist <= epsilon:
+            dist = color_dist(clustered_point, point)
+            if dist <= epsilon + 0.05:
                 clusters_centered[i].append(clustered_point)
                 clusters_original[i].append(original_point)
                 return
@@ -108,19 +142,6 @@ def get_centroids(clusters_centered):
     return centroids
 
 
-"""
-[x,y] mean_shift(p, original_points):
-    shift_x, shift_y, scaleFactor = 0;
-    for p_temp in original_points:
-        dist = euclidean_dist(p, p_temp)
-        weight = kernel(dist, bandwidth)
-        shift_x += p_temp[0] * weight
-        shift_y += p_temp[1] * weight
-        scaleFactor += weight
-shift_x = shift_x / scaleFactor
-shift_y = shift_y / scaleFactor
-return [shift_x, shift_y]
-"""
 def mean_shift_step(p: np.ndarray, points: np.ndarray, bandwidth: float) -> np.ndarray:
     """
     Performs a single mean shift step for a given point.
@@ -155,6 +176,7 @@ def color_dist(ref_color: np.ndarray, curr_color: np.ndarray) -> float:
     """
     return float(np.linalg.norm(ref_color - curr_color))
 
+
 def gaussian_weight(dist: float, bandwidth: float) -> float:
     """
     Calculates the weight using a Gaussian kernel based on distance and bandwidth.
@@ -166,3 +188,19 @@ def gaussian_weight(dist: float, bandwidth: float) -> float:
     return np.exp(- (dist ** 2) / (2 * bandwidth ** 2)) # formula from the presentation
     #return (1 / (bandwidth * math.sqrt(2 * math.pi))) * np.exp(-0.5 * (dist / bandwidth) ** 2) # formula from wikipedia
 
+
+class MeanShiftStepData:
+    def __init__(self, shifted_pixels, current_iteration, max_iteration, original_image_shape, step_results):
+        self.shifted_pixels = shifted_pixels
+        self.current_iteration = current_iteration
+        self.max_iteration = max_iteration
+        self.original_image_shape = original_image_shape
+        self.converged_pixel = sum(1 for _, _, still_moving, _ in step_results if not still_moving)
+        self.total_pixels = self.shifted_pixels.shape[0]
+        self.average_pixel_distance_from_centroid = sum(dist for _, _, _, dist in step_results) / self.total_pixels
+
+    def print_step_results(self):
+        print(f"Iteration {self.current_iteration} (Max Iteration: {self.max_iteration}, Image size: {self.original_image_shape[1]} x {self.original_image_shape[0]}):")
+        print(f"    Number of converged pixels: {self.converged_pixel}/{self.total_pixels}")
+        print(f"    Average distance of the pixels from their centroid: {self.average_pixel_distance_from_centroid:.4f}")
+        print()

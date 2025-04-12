@@ -1,0 +1,98 @@
+\section{Tests und Visualisierung}
+
+Da die Mean Shift Berechnung sehr aufwendig ist, wurde für Testzwecke während der Entwicklung nur mit einem sehr kleinen 40x40 Bild und mit zweidimensionalen Daten aus einem CSV Datei getestet.
+
+
+Folgendes Bild zeigt das Clustering der zweidimensionalen CSV-Daten. Aufgrund der farblichen Zuweisung der einzelnen Punkte zu den Clustern lässt sie hier bereits gut erkennen, dass das Clustering gut funktioniert.
+\includeImgNoUrl{H}{width=0.7\textwidth}{img/mean_shift_result_csv_data.png}{Ergebnis mit Farbsegmentierung im 2D Bereich}{fig3}{\centering}
+
+
+Für die Statusübersicht wird nach jedem Schritt der Fortschritt auf die Konsole ausgegeben.
+
+% ```
+% Start mean shift clustering with image: color_monkey_xs.jpg and bandwidth: 20.0 for 1600 pixels
+% Iteration 1 (Max Iteration: 2000, Image size: 40 x 40):
+%     Number of converged pixels: 11/1600
+%     Average distance of the pixels from their centroid: 21.5346
+
+% ...
+% ```
+
+Weiters wird pro Iterationsschritt, der aktuelle Zustand gespeichert, um diesen am Ende zu visualisieren und zu animieren.
+
+Sämtliche Animationen sind als GIF im Anhang verfügbar.
+
+
+Hier sind die Color Monkey Testbilder mit verschiedenen Bandwidth:
+
+\begin{minipage}[t]{0.23\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/color_monkey_xs_5.0_im.png}{Bandwidth 5.0}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.23\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/color_monkey_xs_10.0_im.png}{Bandwidth 10.0}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.23\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/color_monkey_xs_20.0_im.png}{Bandwidth 20.0}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.23\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/color_monkey_xs_30.0_im.png}{Bandwidth 30.0}{fig2}{\centering}
+\end{minipage}
+
+
+
+Hier sind die Bird Testbilder mit verschiedenen Bandwidth:
+
+\begin{minipage}[t]{0.30\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/bird_xs_5.0_im.png}{Bandwidth 5.0}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.30\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/bird_xs_10.0_im.png}{Bandwidth 10.0}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.30\textwidth}
+    \includeImgNoUrl{H}{width=0.95\linewidth}{img/bird_xs_40.0_im.png}{Bandwidth 40.0}{fig1}{\centering}
+\end{minipage}
+
+
+Testbilder vor und nach dem Mean Shift im Color Space:
+
+Color Monkey:
+
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/color_monkey_xs_30.0_cs_before.png}{Vor Mean Shift - Bandwidth 40.0}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/color_monkey_xs_30.0_cs_after.png}{Nach Mean Shift - Bandwidth 40.0}{fig1}{\centering}
+\end{minipage}
+
+
+Bird: 
+
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/bird_xs_40.0_cs_before.png}{Vor Mean Shift - Bandwidth 40.0}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/bird_xs_40.0_cs_after.png}{Nach Mean Shift - Bandwidth 40.0}{fig1}{\centering}
+\end{minipage}
+
+
+Mit zu kleinen Bandwidth gibt es kein gutes Ergebnis:
+
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/color_monkey_xs_10.0_cs_after.png}{Nach Mean Shift - Bandwidth 10.0}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.45\linewidth}
+    \includeImgNoUrl{H}{width=1.0\linewidth}{img/bird_xs_10.0_cs_after.png}{Nach Mean Shift - Bandwidth 10.0}{fig1}{\centering}
+\end{minipage}
+
+
+
+\newpage
+

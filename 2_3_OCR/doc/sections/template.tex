@@ -1,0 +1,121 @@
+\section{Teilüberschrift}
+
+
+\begin{table}[!htp]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|c|}
+  \hline
+  \textbf{Nr} & \textbf{L} & \textbf{I} & \textbf{T} & \textbf{Summe} & \textbf{Multiplikator} & \textbf{Punkte} \\ \hline
+  1a          & 3/3        & 4/4        & 3/3        & 10             & 3                      & 30              \\ \hline
+  1b          & 3/3        & 4/4        & 3/3        & 10             & 3                      & 30              \\ \hline
+  2a          & 3/3        & 4/4        & 3/3        & 10             & 1                      & 10              \\ \hline
+  2b          & 3/3        & 4/4        & 3/3        & 10             & 2                      & 20              \\ \hline
+  2c          & 3/3        & 4/4        & 3/3        & 10             & 1                      & 10              \\ \hline
+  \end{tabular}
+\end{table}
+
+\subsection{Aufzählungen}
+\begin{itemize}
+  \item TESTITEM
+\end{itemize}
+
+%include code
+%\lstinputlisting[caption=Scheduler, style=customc]{sudoku_solver.c}
+% or
+%\UseRawInputEncoding
+%\lstinputlisting[language=SQL, firstline=1, lastline=100]{../src/2_SQL-Wiederholung.sql}
+% or
+%\lstinputlisting[language=c, firstline=1, lastline=100]{sudoku_solver.c}
+
+
+%include code with minted
+%\begin{minted}[linenos]{cpp}
+%    for i in range(0,2):
+%        print(i)
+%\end{minted}
+
+%\inputminted[]{java}{../src/src/at/fhooe/swe4/queues/Heap.java}
+
+%minted with caption
+%\begin{listing}[!ht]
+%\caption{summary\_spezial.xml - Erstellt aus ue4\_fitnessdokument\_spezial.xml}
+%\inputminted[]{xml}{../src/XMLWizard/xmlFiles/summary_spezial.xml}
+%\end{listing}
+
+
+%include svg
+%\begin{figure}[!htbp]
+%  \centering
+%  \includesvg[inkscapelatex=false]{../svg/1.1_Bestellung.svg}
+%  \caption{UML-Bestellungen}
+%\end{figure}
+
+%include picture
+%\includegraphics[]{../img/2.3.png} 
+%\includegraphics[width=0.9\textwidth]{../img/5.grouping_sets.png}
+%\includegraphics[scale=0.5]{./img/mock/chatSearch.png} 
+
+\begin{minipage}[t]{0.4\textwidth}
+    \includeImgNoUrl{H}{width=0.4\linewidth}{img/3_ball_maske_farbe.png}{Ballmaske mit Farbsegmentierung}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.6\textwidth}
+    \includeImgNoUrl{H}{width=0.8\linewidth}{img/3_ball_maske_farbe_1.png}{Ball Overlay mit Farbsegmentierung}{fig2}{\centering}
+\end{minipage}
+
+% \begin{figure}[!htbp]
+%   \centering
+%   \includegraphics[scale=0.5]{./img/mock/chatSearch.png} 
+%   \caption{Login Window}
+% \end{figure}
+
+% \begin{minipage}[t]{0.65\textwidth}
+%   \vspace{0.5cm}
+%   Für 2 beliebige Algorithmen 1,2 gibt es immer Probleme A,B, bei denen: \\
+%   - Algorithmus 1 bei Problem 1 besser abschneidet als Algorithmus 2 \\
+%   - Algorithmus 2 bei Problem 2 besser abschneidet als Algorithmus 1.
+% \end{minipage}
+% %
+% \begin{minipage}[t]{0.35\textwidth}
+%   \includeImgNoUrl{H}{width=0.8\linewidth}{img/2_no_free_lunch.png}{No Free Lunch Theorem}{fig:2_no_free_lunch}{\centering}
+% \end{minipage}
+
+% Formeln in Latex
+%  \begin{align*}
+%  Kosten &= FK + VK*A_t \\
+%  Ertrag &= A_t*\frac{B_k}{A} \\
+%  Gewinn &= Ertrag - Kosten \\
+%  VK &= WK / SW \\
+%  \frac{B_k}{A} &= \frac{B}{A}+ \frac{B}{A}*(\frac{A}{min} - \frac{A_t}{min})
+%  %B_k/A &= B/A + B/A * (A/min - A_t/min)
+%  \end{align*}
+
+
+% Eine einfache Grafik
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[scale=0.7]{Business_model_innovation}
+%   \caption[Who-what-how-why-Diagramm]{ \textbf{Who-what-how-why}-Diagramm aus dem St. Gallen Business Modell Navigator \cite{gassmann2020geschäftsmodelle}}
+% \end{figure}
+
+
+% Zwei Grafiken nebeneinander
+%  \begin{figure}[H]
+%    \centering
+%    \begin{subfigure}{.5\textwidth}
+%      \centering
+%      \includegraphics[clip, trim=0cm 4.5cm 0cm 2.1cm, scale=0.29]{view2}
+%      \caption{Ansicht im dreidimensionalen Raum}
+%      \label{fig:sub1}
+%    \end{subfigure}%
+%    \begin{subfigure}{.5\textwidth}
+%      \centering
+%      \includegraphics[clip, trim=0cm 4.5cm 0cm 2.1cm, scale=0.29]{view5}
+%      \caption{Gegenüberstellung: Anzahl der Ausführungen $\leftrightarrow$ Gewinn}
+%      \label{fig:sub2}
+%    \end{subfigure}
+%    \caption[Gewinnfunktion]{Zwei Ansichten der Gewinnfunktion. Eine Steigerung der Anzahl der Ausführungen bzw. eine Erhöhung des Betrags/Ausführung wirkt sich positiv auf den Gewinn aus. Das Optimum im zitronengelben Bereich des Funktionsgraphen ist nur in der Modellrechnung erreichbar. $\rightarrow$ die Kombination \textit{hoher Betrag} * \textit{hohe Anzahl an Ausführungen} ist für keinen Kunden finanziell attraktiv.}
+%    \label{Gewinnfunktion}
+%  \end{figure}
+
+\newpage

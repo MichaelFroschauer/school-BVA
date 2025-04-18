@@ -3,7 +3,8 @@ import cv2
 import numpy as np
 
 import ImageFeatureBase
-from SubImageRegion import *
+import SubImageRegion
+
 
 class OCRanalysis:
     def __init__(self):
@@ -33,17 +34,13 @@ class OCRanalysis:
         features_to_use.append(ImageFeatureF_FGcount())
         features_to_use.append(ImageFeatureF_MaxDistX)
         features_to_use.append(ImageFeatureF_MaxDistY)
-
+        
+        #linked_regions, lines = split_characters(binaryImgArr, width, height, BG_VAL, FG_VAL)
         linked_regions = split_characters(binaryImgArr, width, height, BG_VAL, FG_VAL)
-
-        # display all recognized characters
-        highlighted_img = highlight_letters(binaryImgArr, linked_regions)
-        cv2.imshow("highlighted", highlighted_img)
-        #cv2.waitKey(0)
         
         #define the reference character
         tgtCharRow = 2
-        tgtCharCol = 4
+        tgtCharCol = 3
         charROI = linked_regions[tgtCharRow][tgtCharCol]
 
         # test calculate features
@@ -73,12 +70,8 @@ class OCRanalysis:
                     binary_img_arr = self.mark_region_in_image(binary_img_arr, img_reg, BG_VAL, MARKER_VAL)
 
         #TODO: printout result image with all the marked letters
-        cv2.imshow("markedChars", binary_img_arr)
-        cv2.waitKey(0)
         cv2.imwrite("/home/michael/school/gitclones/2_BVA/2_3_OCR/markedChars.png", binary_img_arr)
         print('num of found characters is = ' + str(hitCount))
-
-        cv2.destroyAllWindows()
 
     def printout_feature_res(feature_res_arr, features_to_use):
         print("========== features =========")
@@ -114,79 +107,50 @@ def is_empty_row(in_img, width, row_idx, BG_val):
             return False
     return True
 
-def split_characters_vertically(row_image, BG_val, FG_val, orig_img, row_start_y):
+def split_characters_vertically(row_image, BG_val, FG_val, orig_img):
     # TODO implementation required
-    char_row_regions_list = []
+    return_char_arr = []
+    current_col_img = []
     height, width = row_image.shape
-    current_char_start_x = None
 
     # iterate over all columns
     for x in range(width):
         if is_empty_column(row_image, height, x, BG_val):
-            if current_char_start_x is not None:
-                char_width = x - current_char_start_x
-                region = SubImageRegion(
-                    startX=current_char_start_x,
-                    startY=row_start_y,
-                    width=char_width,
-                    height=height,
-                    origImgArr=orig_img
-                )
-                char_row_regions_list.append(region)
-                current_char_start_x = None
+            if current_col_img:
+                col_img = np.array(current_col_img).T
+                return_char_arr.append(col_img.copy())
+                current_col_img = []
         else:
-            if current_char_start_x is None:
-                current_char_start_x = x
+            current_col_img.append(row_image[:, x])
 
-    return char_row_regions_list
+    return return_char_arr
 
 def split_characters(in_img, width, height, BG_val, FG_val):
     # TODO implementation required
-    char_regions_list = []
+    return_char_matrix = []
     current_row_img = []
-    row_start_y = None
 
-    for y in range(height):
+    # iterate over all lines
+    for y, img_row in enumerate(in_img):
         if is_empty_row(in_img, width, y, BG_val):
+            # found a full row -> split characters vertically and add it to the result
             if current_row_img:
-                # found a full row -> split characters vertically and add it to the result
                 row_img = np.array(current_row_img)
-                char_row_regions_list = split_characters_vertically(
-                    row_img, BG_val, FG_val, in_img, row_start_y
-                )
-                char_regions_list.append(char_row_regions_list)
+                single_character_list = split_characters_vertically(row_img, BG_val, FG_val, in_img)
+                return_char_matrix.append(single_character_list)
                 current_row_img = []
-                row_start_y = None
         else:
-            if row_start_y is None:
-                row_start_y = y
-            # append image row
-            current_row_img.append(in_img[y, :])
+            current_row_img.append(img_row)
 
-    return char_regions_list
+    # for debugging, show single character
+    for i, img_row in enumerate(return_char_matrix):
+        for j, img_char in enumerate(img_row):
+            cv2.imshow(f"split_characters_{j}", img_char)
+            cv2.waitKey(0)
 
+    cv2.destroyAllWindows()
 
-def highlight_letters(orig_img, sub_image_regions):
-    color_img = cv2.cvtColor(orig_img.copy(), cv2.COLOR_GRAY2BGR)
-    overlay = color_img.copy()
-    color = (140, 240, 140)
-    alpha = 0.5
-
-    for line in sub_image_regions:
-        for region in line:
-            top_left = (region.startX, region.startY)
-            bottom_right = (region.startX + region.width - 1, region.startY + region.height - 1)
-            cv2.rectangle(
-                overlay,
-                top_left,
-                bottom_right,
-                color,
-                thickness=cv2.FILLED
-            )
-
-    overlay = cv2.addWeighted(overlay, alpha, color_img, 1 - alpha, 0, color_img)
-    return overlay
-
+    return return_char_matrix
 
 def calculate_norm_arr(input_regions, FG_val, features_to_use):
     # calculate the average per feature to allow for normalization
@@ -215,45 +179,18 @@ def calc_feature_arr(region, FG_val, features_to_use):
 
     return feature_res_arr
 
-# def is_matching_char(curr_feature_arr, ref_feature_arr, norm_feature_arr):
-#     CORR_COEFFICIENT_LIMIT = 0.999
-#
-#     # first normalize the arrays
-#
-#     #then calulate correlation_coefficient
-#     correlation_coefficient = 1.0 #TODO change
-#
-#     if correlation_coefficient > CORR_COEFFICIENT_LIMIT:
-#         return True
-#
-#     return False
-
 def is_matching_char(curr_feature_arr, ref_feature_arr, norm_feature_arr):
-    """
-    Returns True if the normalized feature vector of curr_feature_arr
-    correlates sufficiently strongly with ref_feature_arr.
+    CORR_COEFFICIENT_LIMIT = 0.999
 
-    :param curr_feature_arr: List of feature values of the current region
-    :param ref_feature_arr: List of the feature values of the reference character
-    :param norm_feature_arr: List of mean values (or scaling values) per feature
-    """
-    CORR_COEFFICIENT_LIMIT = 0.99999
+    # first normalize the arrays
+   
+    #then calulate correlation_coefficient
+    correlation_coefficient = 1.0 #TODO change
 
-    curr = np.array(curr_feature_arr, dtype=float)
-    ref  = np.array(ref_feature_arr,  dtype=float)
-    norm = np.array(norm_feature_arr, dtype=float)
+    if correlation_coefficient > CORR_COEFFICIENT_LIMIT:
+        return True
 
-    # Scaling: Divide feature by scaling value
-    curr_scaled = curr / norm
-    ref_scaled  = ref  / norm
-
-    # Calculate correlation
-    # np.corrcoef returns the correlation matrix [[1, corr], [corr, 1]]
-    corr_matrix = np.corrcoef(curr_scaled, ref_scaled)
-    corr_coeff  = corr_matrix[0, 1]
-
-    # Comparison with threshold value
-    return corr_coeff > CORR_COEFFICIENT_LIMIT
+    return False
 
 
 class ImageFeatureF_FGcount(ImageFeatureBase.ImageFeatureBase):

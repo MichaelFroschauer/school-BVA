@@ -5,6 +5,7 @@ class ImageFeatureBase(ABC):
     def __init__(self):
         self.description = ""
 
+    @staticmethod
     @abstractmethod
-    def CalcFeatureVal(self, imgRegion, FG_val):
+    def CalcFeatureVal(imgRegion, FG_val):
         pass

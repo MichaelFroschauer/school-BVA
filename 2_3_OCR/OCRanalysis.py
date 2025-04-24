@@ -1,6 +1,7 @@
 import math
 import cv2
 import numpy as np
+import os
 
 import ImageFeatureBase
 from SubImageRegion import *
@@ -17,7 +18,11 @@ class OCRanalysis:
         #self.F_CentroideRelPosX = 7
         #self.F_CentroideRelPosY = 8
 
-    def run(self, img_path):
+    def run(self, img_path, tgtCharRow, tgtCharCol):
+        # Extract base path of image
+        basePath = os.path.split(img_path)[0]
+
+        # Read image
         img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         height, width = img.shape
         FG_VAL = 0
@@ -26,35 +31,41 @@ class OCRanalysis:
         thresholdVal = 127
 
         _, binaryImgArr = cv2.threshold(img, thresholdVal, BG_VAL, cv2.THRESH_BINARY)
-        cv2.imwrite("/home/michael/school/gitclones/2_BVA/2_3_OCR/binaryOut.png", binaryImgArr)
+        cv2.imwrite(os.path.join(basePath, "binaryOut.png"), binaryImgArr)
 
         #define the features to evaluate
         features_to_use = []
-        features_to_use.append(ImageFeatureF_FGcount())
+        features_to_use.append(ImageFeatureF_FGcount)
         features_to_use.append(ImageFeatureF_MaxDistX)
         features_to_use.append(ImageFeatureF_MaxDistY)
+
+        features_to_use.append(ImageFeatureF_AspectRatio)
+        features_to_use.append(ImageFeatureF_FgBgRatio)
+        features_to_use.append(ImageFeatureF_VerticalAsym)
+        features_to_use.append(ImageFeatureF_HorizontalAsym)
+
 
         linked_regions = split_characters(binaryImgArr, width, height, BG_VAL, FG_VAL)
 
         # display all recognized characters
-        highlighted_img = highlight_letters(binaryImgArr, linked_regions)
-        cv2.imshow("highlighted", highlighted_img)
+        # highlighted_img = highlight_letters(binaryImgArr, linked_regions)
+        # cv2.imshow("highlighted", highlighted_img)
         #cv2.waitKey(0)
         
         #define the reference character
-        tgtCharRow = 2
-        tgtCharCol = 4
+        #tgtCharRow = 3
+        #tgtCharCol = 3
         charROI = linked_regions[tgtCharRow][tgtCharCol]
 
         # test calculate features
-        print('features of reference character is: ')
+        #print('features of reference character is: ')
         feature_res_arr = calc_feature_arr(charROI, BG_VAL, features_to_use)
-        self.printout_feature_res(feature_res_arr, features_to_use)
+        #self.printout_feature_res(feature_res_arr, features_to_use)
 
         #then normalize
         feature_norm_arr = calculate_norm_arr(linked_regions, BG_VAL, features_to_use)
-        print('NORMALIZED features: ')
-        self.printout_feature_res(feature_norm_arr, features_to_use)
+        #print('NORMALIZED features: ')
+        #self.printout_feature_res(feature_norm_arr, features_to_use)
 
         #now check all characters and test, if similarity with reference letter is given:
         # assuming that hitCount, binaryImgArr, FG_VAL, MARKER_VAL are defined elsewhere globally
@@ -75,10 +86,11 @@ class OCRanalysis:
         #TODO: printout result image with all the marked letters
         cv2.imshow("markedChars", binary_img_arr)
         cv2.waitKey(0)
-        cv2.imwrite("/home/michael/school/gitclones/2_BVA/2_3_OCR/markedChars.png", binary_img_arr)
-        print('num of found characters is = ' + str(hitCount))
+        #cv2.imwrite(os.path.join(basePath, "markedChars.png"), binary_img_arr)
+        #print('num of found characters is = ' + str(hitCount))
 
         cv2.destroyAllWindows()
+        return hitCount
 
     def printout_feature_res(feature_res_arr, features_to_use):
         print("========== features =========")
@@ -92,7 +104,7 @@ class OCRanalysis:
                 if img_region.subImgArr[y][x] == color_to_replace:
                     in_img_arr[y + img_region.startY][x + img_region.startX] = tgt_color
                     adjustedColors+=1
-        print('adjusted colors is ' + str(adjustedColors))
+        #print('adjusted colors is ' + str(adjustedColors))
         return in_img_arr
 
     def printout_feature_res(self, feature_res_arr, features_to_use):
@@ -101,21 +113,18 @@ class OCRanalysis:
             print("res of F", i, ",", features_to_use[i], "is", feature_res_arr[i])
 
 def is_empty_column(in_img, height, col_idx, BG_val):
-    #TODO implementation required
     for y in range(height):
         if in_img[y][col_idx] != BG_val:
             return False
     return True
 
 def is_empty_row(in_img, width, row_idx, BG_val):
-    #TODO implementation required
     for x in range(width):
         if in_img[row_idx][x] != BG_val:
             return False
     return True
 
 def split_characters_vertically(row_image, BG_val, FG_val, orig_img, row_start_y):
-    # TODO implementation required
     char_row_regions_list = []
     height, width = row_image.shape
     current_char_start_x = None
@@ -140,8 +149,22 @@ def split_characters_vertically(row_image, BG_val, FG_val, orig_img, row_start_y
 
     return char_row_regions_list
 
+def minimize_character_bounding_height(inImg: np.array, region: SubImageRegion, FG_val: int) -> SubImageRegion:
+    startYOffset, endYOffset = -1, region.height
+    for y in range(region.height):
+        if FG_val in region.subImgArr[y][0:region.width]:
+            if startYOffset <= -1:
+                startYOffset = y
+            endYOffset = y
+    return SubImageRegion(
+        startX=region.startX,
+        startY=region.startY + startYOffset,
+        width=region.width,
+        height=endYOffset - startYOffset + 1,
+        origImgArr=inImg
+    )
+
 def split_characters(in_img, width, height, BG_val, FG_val):
-    # TODO implementation required
     char_regions_list = []
     current_row_img = []
     row_start_y = None
@@ -154,7 +177,10 @@ def split_characters(in_img, width, height, BG_val, FG_val):
                 char_row_regions_list = split_characters_vertically(
                     row_img, BG_val, FG_val, in_img, row_start_y
                 )
-                char_regions_list.append(char_row_regions_list)
+                minized_char_row_regions_list = []
+                for region in char_row_regions_list:
+                    minized_char_row_regions_list.append(minimize_character_bounding_height(in_img, region, FG_val))
+                char_regions_list.append(minized_char_row_regions_list)
                 current_row_img = []
                 row_start_y = None
         else:
@@ -261,7 +287,8 @@ class ImageFeatureF_FGcount(ImageFeatureBase.ImageFeatureBase):
         super().__init__()
         self.description = "F1: Pixelanzahl"
 
-    def CalcFeatureVal(self, imgRegion, FG_val):
+    @staticmethod
+    def CalcFeatureVal(imgRegion, FG_val):
         count = 0
         for x in range(imgRegion.width):
             for y in range(imgRegion.height):
@@ -274,6 +301,7 @@ class ImageFeatureF_MaxDistX(ImageFeatureBase.ImageFeatureBase):
         super().__init__()
         self.description = "maximale Ausdehnung in X-Richtung"
 
+    @staticmethod
     def CalcFeatureVal(imgRegion, FG_val):
         return imgRegion.width
 
@@ -282,15 +310,139 @@ class ImageFeatureF_MaxDistY(ImageFeatureBase.ImageFeatureBase):
         super().__init__()
         self.description = "maximale Ausdehnung in Y-Richtung"
 
+    @staticmethod
     def CalcFeatureVal(imgRegion, FG_val):
         return imgRegion.height
 
+class ImageFeatureF_AspectRatio(ImageFeatureBase.ImageFeatureBase):
+
+    def __init__(self):
+        super().__init__()
+        self.description = "AspectRatio: relative ration between width and height"
+
+    @staticmethod
+    def CalcFeatureVal(imgRegion, FG_val):
+        return imgRegion.width * imgRegion.height
+
+class ImageFeatureF_FgBgRatio(ImageFeatureBase.ImageFeatureBase):
+
+    def __init__(self):
+        super().__init__()
+        self.description = "FgBgRatio: relative ratio between foreground and background"
+
+    @staticmethod
+    def CalcFeatureVal(imgRegion, FG_val):
+        fg = 0
+        bg = 0
+        for y in range(imgRegion.height):
+            for x in range(imgRegion.width):
+                if imgRegion.subImgArr[y][x] == FG_val:
+                    fg += 1
+                else:
+                    bg += 1
+        return fg / max(bg, 1)
+
+class ImageFeatureF_VerticalAsym(ImageFeatureBase.ImageFeatureBase):
+
+    def __init__(self):
+        super.__init__()
+        self.description = "VerticalAsym: Vertical asymmetry"
+
+    @staticmethod
+    def CalcFeatureVal(imgRegion, FG_val):
+        r = 0.0
+        for y in range(imgRegion.height):
+            for x in range(imgRegion.width):
+                if imgRegion.subImgArr[y][x] == FG_val:
+                    r += imgRegion.width / imgRegion.height * x        # f(x) = kx + d
+        return r
+
+class ImageFeatureF_HorizontalAsym(ImageFeatureBase.ImageFeatureBase):
+
+    def __init__(self):
+        super.__init__()
+        self.description = "HorizontalAsymRatio: Horizontal asymmetry"
+
+    @staticmethod
+    def CalcFeatureVal(imgRegion, FG_val):
+        r = 0.0
+        for y in range(imgRegion.height):
+            for x in range(imgRegion.width):
+                if imgRegion.subImgArr[y][x] == FG_val:
+                    r += imgRegion.height / imgRegion.width * y  # f(x) = kx + d
+        return r
 
 def main():
     print("OCR")
-    inImgPath = "/home/michael/school/gitclones/2_BVA/2_3_OCR/altesTestament_ArialBlack.png"
+    inImgPath = os.path.join(os.getcwd(), "altesTestament_ArialBlack.png")
     myAnalysis = OCRanalysis()
-    myAnalysis.run(inImgPath)
+
+    testCases = [
+        ('e', 5, 0, 169),
+        ('n', 0, 3, 115),
+        ('s', 1, 3, 102),
+        ('a', 0, 5, 92),
+        ('t', 1, 4, 82),
+        ('r', 1, 6, 81),
+        ('d', 4, 2, 69),
+        ('i', 1, 1, 57),
+        ('h', 0, 10, 45),
+        ('u', 0, 11, 39),
+        ('o', 2, 1, 38),
+        ('m', 0, 1, 37),
+        ('l', 1, 10, 35),
+        ('c', 0, 9, 33),
+        ('g', 0, 7, 27),
+        ('w', 2, 13, 25),
+        ('G', 2, 0, 23),
+        ('b', 1, 14, 22),
+        ('.', 3, 3, 20),
+        (',', 2, 47, 16),
+        ('L', 2, 18, 10),
+        ('v', 3, 22, 10),
+        ('E', 2, 11, 8),
+        ('W', 6, 7, 8),
+        (':', 2, 10, 8),
+        ('T', 5, 6, 8),
+        ('D', 5, 10, 8),
+        ('S', 7, 55, 8),
+        ('A', 13, 22, 7),
+        ('ü', 13, 8, 7),
+        ('ö', 5, 31, 7),
+        ('f', 0, 4, 6),
+        ('F', 1, 0, 6),
+        ('z', 19, 0, 6),
+        ('H', 18, 30, 5),
+        ('p', 18, 5, 5),
+        ('M', 17, 43, 4),
+        ('B', 14, 0, 3),
+        (';', 0, 30, 2),
+        ('U', 1, 20, 2),
+        ('N', 18, 57, 2),
+        ('k', 10, 39, 2),
+        ('j', 15, 17, 2),
+        ('P', 13, 29, 2),
+        ('ä', 14, 1, 2),
+        ('I', 0, 0, 1),
+        ('O', 10, 24, 1),
+        ('Z', 19, 20, 1),
+        ('J', 20, 8, 1)
+    ]
+
+    successful_tests = 0
+    failed_tests = 0
+    for testCase in testCases:
+        hits = myAnalysis.run(inImgPath, testCase[1],testCase[2])
+        if hits == testCase[3]:
+            print(f'SUCCESS character "{testCase[0]}" - expected: {testCase[3]} found: {hits}')
+            successful_tests += 1
+        else:
+            print(f'FAILED character "{testCase[0]}" - expected: {testCase[3]} found: {hits}')
+            failed_tests += 1
+
+    print(f'==============================================================')
+    print(f'Tests passsed: SUCCESSFULLY {successful_tests} / FAILED {failed_tests}')
+    print(f'==============================================================')
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,29 @@
+\section{Implementierung}
+Im Allgemeinen war bereits ein Großteil des benötigten Quellcodes mit der Angabe gegeben. Der gegebene Quelltext wurde um einige Methoden und Funktionen erweitert
+um die benötigte Funktion abbilden zu können. Bei der Implementierung wurde laut Angabe vorgegangen. \\
+
+Zusätzlich wird der Code um automatisierte Tests sowie Funktionen zur visuellen Kontrolle ergänzt. Zur Überprüfung der Erkennung kann ein Overlay erzeugt werden, das die detektierten Zeichenbereiche im Originalbild hervorhebt. Debugging-Funktionen sind implementiert, jedoch im finalen Code standardmäßig auskommentiert.
+
+\subsection{Zerteilen des Bildes in Teilbilder je Zeichen}
+Das Eingabebild wird zunächst in Graustufen eingelesen und binarisiert. Anschließend erfolgt eine zweistufige Segmentierung der Zeichen:
+
+\begin{enumerate}
+  \item \textbf{Horizontale Segmentierung:} Es werden Bildzeilen identifiziert, in denen Zeichen vorhanden sind. Dabei wird geprüft, ob eine Bildreihe ausschließlich Hintergrund enthält.
+  \item \textbf{Vertikale Segmentierung:} In den gefundenen Zeilen werden die einzelnen Zeichen durch Analyse der Spalten separiert. Auch hier wird überprüft, ob eine Spalte nur Hintergrund enthält.
+\end{enumerate}
+
+Für jedes segmentierte Zeichen wird ein \texttt{SubImageRegion}-Objekt erzeugt, welches die Position, Höhe und Breite des Bereichs im Originalbild beschreibt. Zusätzlich wird eine Methode zur minimalen Höhenanpassung (\texttt{minimize\_character\_bounding\_height}) angewendet, um den Zeichenbereich vertikal anzupassen.
+
+\subsection{Klassifizierung}
+Um die Teilbilder der einzelnen Zeichen einem konkreten Zeichen zuzuordnen, werden Features verwendet. Diese Features sind Merkmale, anhand welcher Zeichen 
+identifiziert werden können. Die Kombination dieser Features soll in Folge möglichst alle Zeichen eindeutig klassifizieren. Um alle Features im Ergebnis
+gleich zu gewichten, müssen diese normalisiert werden. Diese wurde bereits in der Angabe mitgeliefert. Folgende Features sind implementiert:
+\begin{itemize}
+    \item \textbf{FGcount}: Zählt die Anzahl der Vordergrundpixel (also die Zeichenpixel) innerhalb eines Zeichenbereichs.
+    \item \textbf{MaxDistX}: Absolute Breite der Bounding-Box
+    \item \textbf{MaxDistY}: Absolute Höhe der Bounding-Box
+    \item \textbf{AspectRatio}: Relatives Verhältnis zwischen Breite und Höhe
+    \item \textbf{FgBgRatio}: Relatives Verhältnis zwischen Vordergrund und Hintergrund
+    \item \textbf{VerticalAsym}: Symetrie auf der vertikalen Achse (Es wird eine lineare Funktion vom linken unteren Pixel zum rechten oberen erzeugt $\Rightarrow f(x) = kx + d$, wobei d immer 0 ist, und jeder Pixel mit diesem Gewichtsfaktor aufsummiert)
+    \item \textbf{HorizontalAsym}: Symetrie auf der horizontalen Achse (Es wird eine lineare Funktion vom linken oberen Pixel zum rechten unteren erzeugt $\Rightarrow f(x) = kx + d$, wobei d immer 0 ist, und jeder Pixel mit diesem Gewichtsfaktor aufsummiert)
+\end{itemize}

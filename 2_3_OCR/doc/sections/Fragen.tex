@@ -1,0 +1,39 @@
+\section{Fragen}
+
+\subsection{Which letters can be detected in a confident way and which letters lead to problems – and why?}
+Im allgemeinen funktionieren alle Zeichen mit den implementierten Erkennungs Features für das gegebene Testbild gut. Auch jene Zeichen, bei denen zu Beginn angenommen wurde, dass diese Probleme verursachen würden. Wie zum Beispiel
+b und d, welche jedoch mit der Asymetrie gut unterschieden werden können. Die Probleme kommen vorrangig vom splitten der Zeichen und nicht vom Klassifizieren derer.
+
+\subsection{Are all fonts applicable to this kind of OCR strategy – why or why not?}
+Nein, es können nur Schriftarten verwendet werden, welche klar durch gerade horizontale Linien getrennt werden können. Mono-Space Schriftarten eignen
+sich zum Beispiel sehr gut, wo hingegen Schriftarten, die eine Handschrift nachahmen nicht funktionieren würden.
+
+Ein Beispiel für eine problematische Schriftart ist in Abbildung~\ref{fig:overlap-font} zu sehen. Aufgrund der überlappenden Zeichen (z.B. \textit{T} und \textit{e}) funktioniert die \textit{Fire-Through}-Methode nicht, da eine eindeutige vertikale Trennung nicht möglich ist.
+
+\includeImgNoUrl{H}{width=0.6\linewidth}{img/Texterkennung.png}{Beispiel einer Schriftart mit überlappenden Zeichen}{fig:overlap-font}{\centering}
+
+
+\subsection{Does classification accuracy depend on the other characters in the specific line – if that’s the case: why and how to overcome this issue?}
+Bei dem angewandten Vorgehen wird nicht unterschieden, wie oft ein Zeichen vorkommt. Jedoch gibt es bei der gegeben Schriftart Probleme mit überlappenden
+Zeichen-Konstellationen. Beispiele solcher Reihenfolgen sind im Kapitel \Ref{sec-tests} ersichtlich. \\
+
+Um dieses Problem zu umgehen, könnten adaptive Segmentierungsmethoden und kontextabhängige Klassifikatoren verwendet werden, welche die Umgebung eines Zeichens in die Bewertung einbeziehen.
+
+\subsection{Evaluate confidence per letter and discuss}
+Für jedes klassifizierte Zeichen wird ein Konfidenzwert berechnet, der angibt, wie stark die Ähnlichkeit zum Referenzzeichen ist. In den durchgeführten Tests zeigte sich, dass ein Konfidenzwert von etwa \textit{0.99999} für das verwendete Testbild sehr gut funktioniert und ein sehr hohes Maß an Übereinstimmung signalisiert. Dieser Wert könnte jedoch bei anderen Bildern auch zu restriktiv sein, wenn Zeichen durch Rauschen oder Segmentierungsfehler leicht verfälscht wurden.
+
+\subsection{Ensure that the split characters image region is shrinked to its bounding box. How can that help to improve result quality?}
+Das Minimieren der Bounding-Boxes hilft vor allem bei Features, welche sich auf die Höhe dieser beziehen, weil somit einzelne Zeichen möglicherweise
+schon alleinig auf Basis deren Höhe zugeordnet werden können. Würde keine Minimierung durchgeführt werden, hätten alle Bounding-Boxes einer Zeile
+die selbe Höhe und dieses Feature wäre wenig aussagekräftig.
+
+\subsection{Discuss the normalization process – how does character occurrence probability influence the results?}
+Je öfter ein Zeichen erkannt wird, umso mehr werden Ausreißer gedämpft (durch Mittelwertbildung -- Normalisierung).
+
+\subsection{Discuss how the classification process itself could be improved. Are there better strategies for feature-based classification?}
+Im Allgemeinen hat dieser Ansatz den Charm, dass die Implementierung, einfach verständlich ist und zudem noch eine sehr gute Performance
+liefert. Jedoch können Machine-Learning Modelle vor allem bei koplexeren Schriftarten/Rahmenbedingungen womöglich bessere Ergebnisse liefern.
+
+\subsection{How does correlation of some of the features itself influence the achievable classification results (e.g. max-distance-from-centroid will somehow be correlated to the specific width)?}
+Die Features verhalten sich in einem Fall der Abhängigkeit zueinander propational (bei dieser Implementierung). Das bedeutet, dass es keinen Effekt auf das Ergebnis gibt, da die konkrete Gewichtung normalisiert wird.
+

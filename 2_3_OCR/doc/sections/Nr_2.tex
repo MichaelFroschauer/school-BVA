@@ -1,0 +1,35 @@
+\section{Ergebnisanalyse und Verbesserungspotenziale}
+
+\subsection{Konfidenzwert pro Zeichen}
+
+% Evaluate confidence per letter and discuss.
+% -> Wert auf 0.99999
+
+Für jedes klassifizierte Zeichen wird ein Konfidenzwert berechnet, der angibt, wie stark die Ähnlichkeit zum Referenzzeichen ist. In den durchgeführten Tests zeigte sich, dass ein Konfidenzwert von etwa \textit{0.99999} für das verwendete Testbild sehr gut funktioniert und ein sehr hohes Maß an Übereinstimmung signalisiert. Dieser Wert könnte jedoch bei anderen Bildern auch zu restriktiv sein, wenn Zeichen durch Rauschen oder Segmentierungsfehler leicht verfälscht wurden.
+
+
+\subsection{Anpassung der Segmentgrenzen}
+
+% Ensure that the split characters image region is shrinked to its bounding box. How can that help to improve result quality?
+
+Durch das Schrumpfen der Zeichenregion auf das tatsächliche Bounding-Box-Minimum werden Störeinflüsse durch Hintergrundpixel minimiert. Dadurch verbessern sich die extrahierten Merkmale (z.B. Asymmetrien oder Verhältniswerte), was direkt zu stabileren Klassifikationsergebnissen führt.
+
+
+\subsection{Normalisierung und Zeichenhäufigkeit}
+
+% Discuss the normalization process – how does character occurrence probability influence the results?
+% Umso öfter ein Zeichen vorkommt, umso besser sind Ausreißer (abweichende Zeichen) gedämpft.
+
+
+\subsection{Verbesserung der Klassifikation}
+
+% Discuss how the classification process itself could be improved. Are there better strategies for feature-based classification?
+% Kommt auf die Schriftart an.
+% kommt drauf an, ob man die Zeichen trennen kann.
+% Eventuell KI Modelle, mehr Rechenaufwand -> bessere Ergebnisse
+
+
+\subsection{Korrelation von Merkmalen}
+
+% How does correlation of some of the features itself influence the achievable classification results (e.g. max-distance-from-centroid will somehow be correlated to the specific width)?
+

@@ -1,0 +1,164 @@
+\section{OCR-Implementierung}
+
+Als Basis diente der vorgegebene Python-Code zur OCR-Implementierung. Dieser wurde angepasst und um verschiedene Features zur Zeichen-Segmentierung und -Klassifikation erweitert. Zusätzlich wurde der Code um automatisierte Tests sowie Funktionen zur visuellen Kontrolle ergänzt.
+
+Zur Überprüfung der Erkennung kann ein Overlay erzeugt werden, das die detektierten Zeichenbereiche im Originalbild hervorhebt. Debugging-Funktionen wurden implementiert, jedoch im finalen Code standardmäßig auskommentiert.
+
+\subsection{Verwendete Features zur Zeichenklassifikation}
+
+\begin{itemize}
+    \item \textbf{FGcount}: Zählt die Anzahl der Vordergrundpixel (also die Zeichenpixel) innerhalb eines Zeichenbereichs.
+    \item \textbf{MaxDistX}: Bestimmt die maximale horizontale Ausdehnung eines Zeichens.
+    \item \textbf{MaxDistY}: Bestimmt die maximale vertikale Ausdehnung eines Zeichens.
+    \item \textbf{AspectRatio}: Beschreibt das Verhältnis von Breite zu Höhe des Zeichenbereichs.
+    \item \textbf{FgBgRatio}: Gibt das Verhältnis von Vordergrund- zu Hintergrundpixeln im Zeichenbereich an.
+    \item \textbf{VerticalAsym}: Misst die vertikale Asymmetrie des Zeichens, also Unterschiede zwischen linker und rechter Hälfte.
+    \item \textbf{HorizontalAsym}: Misst die horizontale Asymmetrie des Zeichens, also Unterschiede zwischen oberer und unterer Hälfte.
+\end{itemize}
+
+Diese Features werden für ein Referenzzeichen berechnet, und anschließend für alle anderen gefundenen Zeichen in der Bildzeile. Die Ähnlichkeit zwischen den Zeichen wird auf Basis der normalisierten Merkmalswerte bestimmt.
+
+\subsection{Segmentierung}
+
+Das Eingabebild wird zunächst in Graustufen eingelesen und binarisiert. Anschließend erfolgt eine zweistufige Segmentierung der Zeichen:
+
+\begin{enumerate}
+  \item \textbf{Horizontale Segmentierung:} Es werden Bildzeilen identifiziert, in denen Zeichen vorhanden sind. Dabei wird geprüft, ob eine Bildreihe ausschließlich Hintergrund enthält.
+  \item \textbf{Vertikale Segmentierung:} In den gefundenen Zeilen werden die einzelnen Zeichen durch Analyse der Spalten separiert. Auch hier wird überprüft, ob eine Spalte nur Hintergrund enthält.
+\end{enumerate}
+
+Für jedes segmentierte Zeichen wird ein \texttt{SubImageRegion}-Objekt erzeugt, welches die Position, Höhe und Breite des Bereichs im Originalbild beschreibt. Zusätzlich wird eine Methode zur minimalen Höhenanpassung (\texttt{minimize\_character\_bounding\_height}) angewendet, um den Zeichenbereich vertikal anzupassen.
+
+\subsection{Klassifikation und Visualisierung}
+
+Nach der Merkmalsextraktion wird ein Referenzzeichen gewählt, mit dem alle anderen Zeichen verglichen werden. Stimmen die extrahierten Merkmale innerhalb eines Toleranzbereichs überein, so wird das jeweilige Zeichen als Treffer gewertet und im Bild farblich markiert.
+
+
+
+\section{Fehlerhaft oder nicht erkannte Zeichen}
+
+% Which letters can be detected in a confident way and which letters lead to problems – and why? 
+
+Grundsätzlich werden die meisten Zeichen zuverlässig erkannt. Schwierigkeiten ergeben sich jedoch bei bestimmten Konstellationen im Testbild, insbesondere aufgrund der verwendeten Fire-Through-Methode zur Segmentierung der Zeichen. Im Folgenden werden Problemfälle beschrieben und mögliche Lösungen diskutiert.
+
+Ein typischer Fehlerfall tritt auf, wenn zwei benachbarte Buchstaben durch ein oder mehrere Pixel verbunden sind. Dies führt dazu, dass die Fire-Through-Methode diese Buchstaben als ein einzelnes Zeichen interpretiert. 
+
+\includeImgNoUrl{H}{width=0.6\linewidth}{img/r-t-fehler.png}{Fehlerhafte Segmentierung: \textit{r} und \textit{t} werden als ein Zeichen erkannt}{fig:r-t-fehler}{\centering}
+
+\includeImgNoUrl{H}{width=0.45\linewidth}{img/r-v-fehler.png}{Fehlerhafte Segmentierung: \textit{r} und \textit{v}}{fig:r-v-fehler}{\centering}
+
+\includeImgNoUrl{H}{width=0.4\linewidth}{img/r-f-fehler.png}{Fehlerhafte Segmentierung: \textit{r} und \textit{f}}{fig:r-f-fehler}{\centering}
+
+\textbf{Mögliche Lösung:} 
+\begin{itemize}
+    \item Anwendung von Morphologie-Operationen wie Erosion und Dilation, um dünne Verbindungspixel zu entfernen.
+    \item ???
+\end{itemize}
+
+
+Ein weiterer Fehlerfall tritt auf, wenn Buchstaben nicht durch eine vertikale, leere Pixelreihe voneinander getrennt sind, dies ist eine Voraussetzung für die Fire-Through-Methode.
+
+\includeImgNoUrl{H}{width=0.6\linewidth}{img/z-w-fehler.png}{Fehlerhafte Segmentierung: \textit{z} und \textit{w} verschmelzen zu einem Zeichen}{fig:z-w-fehler}{\centering}
+
+\textbf{Mögliche Lösung:}
+\begin{itemize}
+    \item Kombination der Fire-Through-Methode mit heuristischen Regeln zur Zeichenbreite oder zur Zeichenanzahl pro Zeile.
+    \item ???
+\end{itemize}
+
+
+\section{Tests der OCR-Implementierung}
+
+\subsection{Visuelle Überprüfung}
+
+Zur Überprüfung der Zeichenlokalisierung wurden Bounding Boxes über erkannte Zeichen gelegt. Diese Boxen passen sich der Breite und Höhe des jeweiligen Zeichens an.
+
+\includeImgNoUrl{H}{width=0.7\linewidth}{img/bbox_beispiel.png}{Bounding Boxes zur Lokalisierung der Zeichen}{fig:bbox}{\centering}
+
+Durch Vergleich der extrahierten Zeichen-Features kann ein Referenzzeichen (z.B. \textit{e}) ausgewählt und alle gleichartigen Zeichen im Bild identifiziert werden.
+
+\includeImgNoUrl{H}{width=1.0\linewidth}{img/e_ok.png}{Alle korrekt als \textit{e} erkannten Zeichen farblich hervorgehoben}{fig:e_ok}{\centering}
+
+
+\subsection{Automatisierte Überprüfung}
+
+Die Tests mit dem gesamten Zeichensatz des Testbilds zeigten eine hohe Erkennungsgenauigkeit. Insgesamt wurden 49 Zeichenklassen getestet, wobei 43 erfolgreich und 6 fehlerhaft erkannt wurden. Die Fehler lassen sich auf die oben beschriebenen Segmentierungsprobleme zurückführen.
+
+\begin{lstlisting}{}
+SUCCESS character "e" - expected: 169 found: 169
+SUCCESS character "n" - expected: 115 found: 115
+SUCCESS character "s" - expected: 102 found: 102
+SUCCESS character "a" - expected: 92 found: 92
+FAILED character "t" - expected: 82 found: 78
+FAILED character "r" - expected: 81 found: 75
+SUCCESS character "d" - expected: 69 found: 69
+SUCCESS character "i" - expected: 57 found: 57
+SUCCESS character "h" - expected: 45 found: 45
+SUCCESS character "u" - expected: 39 found: 39
+SUCCESS character "o" - expected: 38 found: 38
+SUCCESS character "m" - expected: 37 found: 37
+SUCCESS character "l" - expected: 35 found: 35
+SUCCESS character "c" - expected: 33 found: 33
+SUCCESS character "g" - expected: 27 found: 27
+FAILED character "w" - expected: 25 found: 24
+SUCCESS character "G" - expected: 23 found: 23
+SUCCESS character "b" - expected: 22 found: 22
+SUCCESS character "." - expected: 20 found: 20
+SUCCESS character "," - expected: 16 found: 16
+SUCCESS character "L" - expected: 10 found: 10
+FAILED character "v" - expected: 10 found: 9
+SUCCESS character "E" - expected: 8 found: 8
+SUCCESS character "W" - expected: 8 found: 8
+SUCCESS character ":" - expected: 8 found: 8
+SUCCESS character "T" - expected: 8 found: 8
+SUCCESS character "D" - expected: 8 found: 8
+SUCCESS character "S" - expected: 8 found: 8
+SUCCESS character "A" - expected: 7 found: 7
+SUCCESS character "ü" - expected: 7 found: 7
+SUCCESS character "ö" - expected: 7 found: 7
+FAILED character "f" - expected: 6 found: 5
+SUCCESS character "F" - expected: 6 found: 6
+FAILED character "z" - expected: 6 found: 5
+SUCCESS character "H" - expected: 5 found: 5
+SUCCESS character "p" - expected: 5 found: 5
+SUCCESS character "M" - expected: 4 found: 4
+SUCCESS character "B" - expected: 3 found: 3
+SUCCESS character ";" - expected: 2 found: 2
+SUCCESS character "U" - expected: 2 found: 2
+SUCCESS character "N" - expected: 2 found: 2
+SUCCESS character "k" - expected: 2 found: 2
+SUCCESS character "j" - expected: 2 found: 2
+SUCCESS character "P" - expected: 2 found: 2
+SUCCESS character "ä" - expected: 2 found: 2
+SUCCESS character "I" - expected: 1 found: 1
+SUCCESS character "O" - expected: 1 found: 1
+SUCCESS character "Z" - expected: 1 found: 1
+SUCCESS character "J" - expected: 1 found: 1
+==============================================================
+Tests passed: SUCCESSFULLY 43 / FAILED 6
+==============================================================
+\end{lstlisting}
+
+
+
+\section{Überlegungen zur Implementierung}
+
+\subsection{Anwendbarkeit auf verschiedene Schriftarten}
+
+% Are all fonts applicable to this kind of OCR strategy – why or why not? 
+
+Nicht alle Schriftarten sind gleichermaßen gut für diese OCR-Strategie geeignet. Serifenlose Schriftarten mit klar abgegrenzten und gleichmäßig verteilten Zeichen liefern in der Regel deutlich bessere Ergebnisse. Serifenschriften oder dekorative Fonts hingegen enthalten zusätzliche Linien, Verzierungen oder unregelmäßige Abstände, die die Segmentierung erschweren und zu Fehlklassifikationen führen können.
+
+Ein Beispiel für eine problematische Schriftart ist in Abbildung~\ref{fig:overlap-font} zu sehen. Aufgrund der überlappenden Zeichen (z.B. \textit{T} und \textit{e}) funktioniert die \textit{Fire-Through}-Methode nicht, da eine eindeutige vertikale Trennung nicht möglich ist.
+
+\includeImgNoUrl{H}{width=0.6\linewidth}{img/Texterkennung.png}{Beispiel einer Schriftart mit überlappenden Zeichen}{fig:overlap-font}{\centering}
+
+
+\subsection{Einfluss benachbarter Zeichen auf die Erkennung}
+
+% Does classification accuracy depend on the other characters in the specific line – if that’s the case: why and how to overcome this issue?
+
+Die Klassifizierungsgenauigkeit hängt teilweise auch von benachbarten Zeichen ab, insbesondere bei der Segmentierung. Wenn ein Zeichen zu nah an das nächste rückt oder gar überlappt, verschmelzen sie häufig zu einer Einheit. Um dieses Problem zu umgehen, könnten adaptive Segmentierungsmethoden und kontextabhängige Klassifikatoren verwendet werden, welche die Umgebung eines Zeichens in die Bewertung einbeziehen.
+
+
+

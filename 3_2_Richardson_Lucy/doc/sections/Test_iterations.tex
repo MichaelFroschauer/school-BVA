@@ -1,0 +1,84 @@
+\section{Test mit unterschiedlich vielen Iterationen}
+
+In diesem Test wurde untersucht, welchen Einfluss die Anzahl der Iterationen auf das Rekonstruktionsergebnis hat. Als Startbild diente jeweils das verschwommene Bild, und es wurden verschiedene \textit{Point Spread Functions} (PSFs) verwendet. Die maximale Iterationsanzahl wurde dabei auf 10, 50 und 100 festgelegt.
+
+\subsection{Iterationstests: Mittelwertfilter als PSF}
+
+\paragraph{Bewertung:}
+Mit zunehmender Iterationsanzahl verbessert sich die Bildschärfe deutlich. Bereits bei 50 Iterationen sind feine Details besser sichtbar. Allerdings steigt mit der Iterationszahl auch das Risiko für Artefaktbildung.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_blurred_10.png}{10 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_blurred_50.png}{50 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_blurred_100.png}{100 Iterationen}{fig:}{\centering}
+\end{minipage}
+
+
+
+
+\subsection{Iterationstests: Gauß-Filter als PSF}
+
+\paragraph{Bewertung:}
+Auch beim Gauß-Filter führt eine höhere Iterationsanzahl zu einer leichten Verbesserung der Bildschärfe. Im Vergleich zum Mittelwertfilter fällt die Verbesserung jedoch weniger deutlich aus. Die Rekonstruktion bleibt insgesamt etwas weicher.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_blurred_10.png}{10 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_blurred_50.png}{50 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_blurred_100.png}{100 Iterationen}{fig:}{\centering}
+\end{minipage}
+
+
+
+
+\subsection{Iterationstests: Horizontal-Filter als PSF}
+
+\paragraph{Bewertung:}
+Eine höhere Iterationsanzahl führt zu einer deutlich verbesserten Schärfe. Gleichzeitig treten jedoch verstärkt vertikale Artefakte auf, was auf die Richtungsabhängigkeit des horizontalen PSFs zurückzuführen ist.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_horizontal_blurred_10.png}{10 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_horizontal_blurred_50.png}{50 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_horizontal_blurred_100.png}{100 Iterationen}{fig:}{\centering}
+\end{minipage}
+
+
+
+
+\subsection{Iterationstests: Diagonal-Filter als PSF}
+
+\paragraph{Bewertung:}
+Mit steigender Iterationsanzahl verbessert sich die Bildschärfe deutlich. Gleichzeitig werden jedoch auch diagonale Artefakte immer sichtbarer, was der diagonalen Struktur des verwendeten PSFs entspricht.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_diagonal_blurred_10.png}{10 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_diagonal_blurred_50.png}{50 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_diagonal_blurred_100.png}{100 Iterationen}{fig:}{\centering}
+\end{minipage}

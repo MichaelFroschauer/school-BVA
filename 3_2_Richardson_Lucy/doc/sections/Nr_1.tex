@@ -1,0 +1,96 @@
+\section{Test}
+
+
+\subsection{200 Iterationen}
+
+\subsubsection{Originalbilder}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/original.png}{}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/mean_blurred.png}{}{fig2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/mean_noisy_blurred.png}{}{fig3}{\centering}
+\end{minipage}
+
+
+\subsection{Mean-Filter-Kernel}
+\subsubsection{Restored Bilder ohne Rauschen}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_random.png}{Random Guess Estimation}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_gray.png}{Gray Guess Estimation}{fig2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_blurred.png}{Blurred Image Guess Estimation}{fig3}{\centering}
+\end{minipage}
+
+\subsubsection{Restored Bilder mit Rauschen}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_mean_random.png}{Random Guess Estimation}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_mean_gray.png}{Gray Guess Estimation}{fig2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_mean_blurred.png}{Blurred Image Guess Estimation}{fig3}{\centering}
+\end{minipage}
+
+
+
+\subsection{Gauss-Filter-Kernel}
+\subsubsection{Restored Bilder ohne Rauschen}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_random.png}{Random Guess Estimation}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_gray.png}{Gray Guess Estimation}{fig2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_blurred.png}{Blurred Image Guess Estimation}{fig3}{\centering}
+\end{minipage}
+
+\subsubsection{Restored Bilder mit Rauschen}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_gauss_random.png}{Random Guess Estimation}{fig1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_gauss_gray.png}{Gray Guess Estimation}{fig2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_gauss_blurred.png}{Blurred Image Guess Estimation}{fig3}{\centering}
+\end{minipage}
+
+
+
+\begin{table}[H]
+    \begin{tabularx}{\linewidth}{| l | X |}
+        \hline
+        rt & \includeImgNoUrl{H}{width=0.2\textwidth}{img/r-t-fehler.png}{}{}{\centering}\\\hline
+        rv & \includeImgNoUrl{H}{width=0.25\textwidth}{img/r-v-fehler.png}{}{\centering}\\\hline
+        rf & \includeImgNoUrl{H}{width=0.2\textwidth}{img/r-f-fehler.png}{}{\centering}\\\hline
+        zw & \includeImgNoUrl{H}{width=0.3\textwidth}{img/z-w-fehler.png}{}{}{\centering}\\\hline
+    \end{tabularx}
+\end{table}

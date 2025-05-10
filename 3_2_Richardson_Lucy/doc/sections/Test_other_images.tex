@@ -1,0 +1,43 @@
+\section{Tests mit anderem Bild}
+
+Um die Robustheit des Algorithmus zu prüfen, wurde die Rekonstruktion auch mit einem anderen Bild getestet. Dabei kamen verschiedene Unschärfefilter (Mittelwert, Gauß, horizontal, diagonal) zum Einsatz. In den Abbildungen ist jeweils links das verschwommene und rechts das rekonstruierte Bild zu sehen. Alle Filter liefern insgesamt gute Ergebnisse, jedoch zeigt sich, dass der Gauß-Filter im Vergleich die schlechteste Rekonstruktionsqualität aufweist.
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.9\linewidth}{img/galaxy_mean_blurred.png}{Mittelwertfilter}{}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.9\linewidth}{img/galaxy_restored_mean_blurred.png}{Mittelwertfilter: Rekonstruiertes Bild}{}{\centering}
+\end{minipage}
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.9\linewidth}{img/galaxy_gauss_blurred.png}{Gauß-Filter}{}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.9\linewidth}{img/galaxy_restored_gauss_blurred.png}{Gauß-Filter: Rekonstruiertes Bild}{}{\centering}
+\end{minipage}
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.9\linewidth}{img/galaxy_horizontal_blurred.png}{Horizontalfilter}{}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.9\linewidth}{img/galaxy_restored_horizontal_blurred.png}{Horizontalfilter: Rekonstruiertes Bild}{}{\centering}
+\end{minipage}
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.9\linewidth}{img/galaxy_diagonal_blurred.png}{Diagonalfilter}{}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.9\linewidth}{img/galaxy_restored_diagonal_blurred.png}{Diagonalfilter: Rekonstruiertes Bild}{}{\centering}
+\end{minipage}
+
+
+
+

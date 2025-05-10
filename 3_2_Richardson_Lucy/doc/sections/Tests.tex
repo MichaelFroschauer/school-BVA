@@ -1,0 +1,322 @@
+\section{Test}
+
+In diesem Kapitel werden die Ergebnisse der Richardson-Lucy-Dekonvolution mit 200 Iterationen unter verschiedenen Bedingungen dargestellt. Ziel ist es, die Auswirkungen der gewählten \textit{Point Spread Function, PSF} sowie des verwendeten Startbildes (Initialisierung) auf die Qualität der restaurierten Bilder zu untersuchen. Zudem wird der Einfluss von zusätzlichem Rauschen analysiert.
+
+
+
+\subsection{Mittelwertfilter (Mean Filter) als PSF}
+
+\subsubsection{Originalbilder}
+
+In Abbildung \ref{fig:original} bis \ref{fig:mean_noise} sind die Ausgangsbilder dargestellt, welche als Basis für die Tests dienten. Das erste Bild stellt das Originalbild dar. Dieses wurde anschließend mit einem Mittelwertfilter gefaltet (Abbildung \ref{fig:mean_blur}), um eine Unschärfe zu simulieren. Zusätzlich wurde ein weiteres Bild erstellt, bei dem zum unscharfen Bild additiver Rauschanteil hinzugefügt wurde (Abbildung \ref{fig:mean_noise}).
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/original.png}{Originalbild}{fig:original}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/mean_blurred.png}{Mit Mittelwertfilter (PSF) gefiltert}{fig:mean_blur}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/mean_noisy_blurred.png}{Mit Mittelwertfilter und Rauschen}{fig:mean_noise}{\centering}
+\end{minipage}
+
+\subsubsection{Restaurierte Bilder ohne Rauschen}
+
+Die Abbildungen \ref{fig:mean_rand} bis \ref{fig:mean_blurred} zeigen die Ergebnisse der Dekonvolution ohne Rauschen, wobei der Mittelwertfilter als PSF verwendet wurde. Die Initialisierung erfolgte mit verschiedenen Startbildern:
+
+\begin{itemize}
+    \item \textbf{Random Guess Estimation}: Ein zufällig erzeugtes Bild. Das Ergebnis zeigt starke Artefakte und Konvergenzprobleme.
+    \item \textbf{Gray Guess Estimation}: Ein konstant graues Bild als Startwert. Das Ergebnis ist bereits relativ gut.
+    \item \textbf{Blurred Image Guess Estimation}: Das verschwommene Bild selbst wurde als Initialisierung verwendet, es ist sehr ähnlich zum grauen Startbild.
+\end{itemize}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_random.png}{Random Guess Estimation}{fig:mean_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_gray.png}{Gray Guess Estimation}{fig:mean_gray}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_blurred.png}{Blurred Image Guess Estimation}{fig:mean_blurred}{\centering}
+\end{minipage}
+
+
+\subsubsection{Restaurierte Bilder mit Rauschen}
+
+Mit zusätzlichem Rauschen (Abbildungen \ref{fig:mean_noise_rand} bis \ref{fig:mean_noise_blurred}) wird deutlich, dass die Qualität der Restauration stark leidet. Besonders bei zufälliger Initialisierung breiten sich Artefakte aus. Die Initialisierung mit dem verrauschten Bild liefert vergleichsweise akzeptable Resultate, jedoch mit verstärktem Rauscheinfluss.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_mean_random.png}{Random Guess Estimation mit Rauschen}{fig:mean_noise_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_mean_gray.png}{Gray Guess Estimation mit Rauschen}{fig:mean_noise_gray}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_mean_blurred.png}{Blurred Image Guess Estimation mit Rauschen}{fig:mean_noise_blurred}{\centering}
+\end{minipage}
+
+
+\subsubsection{Tests zur Auswirkung der Iterationsanzahl}
+
+Bei diesen Tests wurde mit dem verschwommenen Bild als Startbild und verschiedenen \textit{Point Spread Functions} die Auswirkungen der Iterationsanzahl getestet.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_blurred_10.png}{10 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_blurred_50.png}{50 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_mean_blurred_100.png}{100 Iterationen}{fig:}{\centering}
+\end{minipage}
+
+
+
+\subsection{Gauß-Filter als PSF}
+
+\subsubsection{Originalbilder}
+
+In Abbildung \ref{fig:original} bis \ref{fig:mean_noise} sind die Ausgangsbilder dargestellt, welche als Basis für die Tests dienten. Das erste Bild stellt das Originalbild dar. Dieses wurde anschließend mit einem Mittelwertfilter gefaltet (Abbildung \ref{fig:mean_blur}), um eine Unschärfe zu simulieren. Zusätzlich wurde ein weiteres Bild erstellt, bei dem zum unscharfen Bild ein Rauschanteil hinzugefügt wurde (Abbildung \ref{fig:mean_noise}).
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/original.png}{Originalbild}{fig:original}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/gauss_blurred.png}{Mit Gaussfilter (PSF) gefiltert}{fig:mean_blur}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/gauss_noisy_blurred.png}{Mit Gaussfilter und Rauschen}{fig:mean_noise}{\centering}
+\end{minipage}
+
+
+\subsubsection{Restaurierte Bilder ohne Rauschen}
+
+Bei Verwendung eines Gauß-Kernels als PSF zeigen sich (Abbildungen \ref{fig:gauss_rand} bis \ref{fig:gauss_blurred}) ähnliche Tendenzen wie beim Mittelwertfilter. Jedoch erscheinen die Resultate visuell stabiler. Besonders bei Initialisierung mit dem verschwommenen Bild werden schärfere und rauschfreiere Resultate erzielt.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_random.png}{Random Guess Estimation}{fig:gauss_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_gray.png}{Gray Guess Estimation}{fig:gauss_gray}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_blurred.png}{Blurred Image Guess Estimation}{fig:gauss_blurred}{\centering}
+\end{minipage}
+
+
+\subsubsection{Restaurierte Bilder mit Rauschen}
+
+Auch mit Rauscheinfluss (Abbildungen \ref{fig:gauss_noise_rand} bis \ref{fig:gauss_noise_blurred}) bleibt das Verhalten konsistent: Zufällige Initialisierung liefert die schlechtesten, Initialisierung mit dem verrauschten Bild die besten Resultate unter den gegebenen Umständen. Die Robustheit gegenüber Rauschen ist beim Gaußfilter geringfügig besser als beim Mittelwertfilter.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_gauss_random.png}{Random Guess Estimation mit Rauschen}{fig:gauss_noise_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_gauss_gray.png}{Gray Guess Estimation mit Rauschen}{fig:gauss_noise_gray}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_gauss_blurred.png}{Blurred Image Guess Estimation mit Rauschen}{fig:gauss_noise_blurred}{\centering}
+\end{minipage}
+
+
+\subsubsection{Tests zur Auswirkung der Iterationsanzahl}
+
+Bei diesen Tests wurde mit dem verschwommenen Bild als Startbild und verschiedenen \textit{Point Spread Functions} die Auswirkungen der Iterationsanzahl getestet.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_blurred_10.png}{10 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_blurred_50.png}{50 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_gauss_blurred_100.png}{100 Iterationen}{fig:}{\centering}
+\end{minipage}
+
+
+
+
+\subsection{Horizontal-Filter als PSF}
+
+\subsubsection{Originalbilder}
+
+Die Originalbilder wurden mithilfe eines horizontalen PSFs gefiltert. Dabei wird vor allem horizontale Information verschmiert, wodurch vertikale Kanten stärker betroffen sind. Rauschen wurde zusätzlich separat hinzugefügt, um die Robustheit der Rekonstruktion zu testen.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/original.png}{Originalbild}{fig:original}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/horizontal_blurred.png}{Mit horizontalem Filter (PSF) gefiltert}{fig:mean_blur}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/horizontal_noisy_blurred.png}{Mit horizontalem Filter und Rauschen}{fig:mean_noise}{\centering}
+\end{minipage}
+
+
+\subsubsection{Restaurierte Bilder ohne Rauschen}
+
+Bei der Rekonstruktion mit horizontalem PSF fällt auf, dass insbesondere bei Initialisierung mit dem verschwommenen Bild deutlich bessere Resultate erzielt werden. Die Strukturen erscheinen im Vergleich zur zufälligen oder grauen Initialisierung schärfer, wenngleich leichte horizontale Artefakte sichtbar bleiben.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_horizontal_random.png}{Random Guess Estimation}{fig:horizontal_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_horizontal_gray.png}{Gray Guess Estimation}{fig:horizontal_gray}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_horizontal_blurred.png}{Blurred Image Guess Estimation}{fig:horizontal_blurred}{\centering}
+\end{minipage}
+
+
+\subsubsection{Restaurierte Bilder mit Rauschen}
+
+Mit zusätzlichem Rauschen bleibt das Muster der Qualitätsunterschiede bestehen. Die Rekonstruktion aus verrauschten, horizontal verschwommenen Bildern liefert visuell akzeptable Ergebnisse, insbesondere bei guter Initialisierung. Die Robustheit gegenüber Rauschen ist jedoch geringer als beim Gauß-Filter.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_horizontal_random.png}{Random Guess Estimation mit Rauschen}{fig:horizontal_noise_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_horizontal_gray.png}{Gray Guess Estimation mit Rauschen}{fig:horizontal_noise_gray}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_horizontal_blurred.png}{Blurred Image Guess Estimation mit Rauschen}{fig:horizontal_noise_blurred}{\centering}
+\end{minipage}
+
+\subsubsection{Tests zur Auswirkung der Iterationsanzahl}
+
+Bei diesen Tests wurde mit dem verschwommenen Bild als Startbild und verschiedenen \textit{Point Spread Functions} die Auswirkungen der Iterationsanzahl getestet.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_horizontal_blurred_10.png}{10 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_horizontal_blurred_50.png}{50 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_horizontal_blurred_100.png}{100 Iterationen}{fig:}{\centering}
+\end{minipage}
+
+
+
+
+\subsection{Diagonal-Filter als PSF}
+
+\subsubsection{Originalbilder}
+
+Durch Anwendung eines diagonalen PSFs wird Bildinformation entlang einer Diagonale verschmiert, was zu einer Richtungsunschärfe führt. In Kombination mit hinzugefügtem Rauschen entstehen komplexe Artefakte, die in der Rekonstruktion gezielt adressiert werden müssen.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/original.png}{Originalbild}{fig:original}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/diagonal_blurred.png}{Mit Mittelwertfilter (PSF) gefiltert}{fig:mean_blur}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/diagonal_noisy_blurred.png}{Mit Mittelwertfilter und Rauschen}{fig:mean_noise}{\centering}
+\end{minipage}
+
+
+\subsubsection{Restaurierte Bilder ohne Rauschen}
+
+Die diagonale Unschärfe erweist sich als herausfordernder für die Rekonstruktion. Zwar lässt sich mit der verschwommenen Initialisierung ein relativ gutes Ergebnis erzielen, jedoch bleiben gegenüber der Gauß- und Horizontalfilterung stärkere Unschärfen zurück, besonders entlang der diagonalen Kanten.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_diagonal_random.png}{Random Guess Estimation}{fig:diagonal_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_diagonal_gray.png}{Gray Guess Estimation}{fig:diagonal_gray}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_diagonal_blurred.png}{Blurred Image Guess Estimation}{fig:diagonal_blurred}{\centering}
+\end{minipage}
+
+
+\subsubsection{Restaurierte Bilder mit Rauschen}
+
+Mit zusätzlichem Rauschen leidet die Qualität der Rekonstruktion merklich. Besonders bei zufälliger Initialisierung sind deutliche Bildfehler zu beobachten. Die Initialisierung mit dem verrauschten Bild liefert erwartungsgemäß die besten, wenn auch verrauschten, Ergebnisse.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_diagonal_random.png}{Random Guess Estimation mit Rauschen}{fig:diagonal_noise_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_diagonal_gray.png}{Gray Guess Estimation mit Rauschen}{fig:diagonal_noise_gray}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noise_diagonal_blurred.png}{Blurred Image Guess Estimation mit Rauschen}{fig:diagonal_noise_blurred}{\centering}
+\end{minipage}
+
+
+\subsubsection{Tests zur Auswirkung der Iterationsanzahl}
+
+Bei diesen Tests wurde mit dem verschwommenen Bild als Startbild und verschiedenen \textit{Point Spread Functions} die Auswirkungen der Iterationsanzahl getestet.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_diagonal_blurred_10.png}{10 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_diagonal_blurred_50.png}{50 Iterationen}{fig:}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_diagonal_blurred_100.png}{100 Iterationen}{fig:}{\centering}
+\end{minipage}
+
+
+
+
+
+
+
+
+
+
+
+
+

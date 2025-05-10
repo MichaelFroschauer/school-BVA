@@ -1,0 +1,180 @@
+\section{Test mit verschiedenen Startbildern und Filterkernels}
+
+In diesem Kapitel werden die Ergebnisse der Richardson-Lucy-Dekonvolution mit 100 Iterationen unter verschiedenen Bedingungen dargestellt. Ziel ist es, die Auswirkungen der gewählten \textit{Point Spread Function, PSF} sowie des verwendeten Startbildes (Initialisierung) auf die Qualität der restaurierten Bilder zu untersuchen.
+
+\begin{itemize}
+    \item \textbf{Random Guess Estimation}: Ein zufällig erzeugtes Bild. Das Ergebnis zeigt starke Artefakte und Konvergenzprobleme.
+    \item \textbf{Gray Guess Estimation}: Ein konstant graues Bild als Startwert. Das Ergebnis ist bereits relativ gut.
+    \item \textbf{Blurred Image Guess Estimation}: Das verschwommene Bild selbst wurde als Initialisierung verwendet, es ist sehr ähnlich zum grauen Startbild.
+    \item \textbf{Duck Image Guess Estimation}: Ein Bild von Donald Duck wurde zur Initialisierung verwendet.
+\end{itemize}
+
+
+\subsection{Mittelwertfilter als PSF}
+
+\subsubsection{Originalbilder}
+
+In Abbildung \ref{fig:original_1} und \ref{fig:mean_blur_1} sind die Ausgangsbilder dargestellt, welche als Basis für diesen Test dienten. Das erste Bild stellt das Originalbild dar. Dieses wurde anschließend mit einem Mittelwertfilter gefaltet, um eine Unschärfe zu erzeugen.
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/original.png}{Originalbild}{fig:original_1}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/mean_blurred.png}{Mit Mittelwertfilter (PSF) gefiltert}{fig:mean_blur_1}{\centering}
+\end{minipage}
+
+\subsubsection{Restaurierte Bilder ohne Rauschen}
+
+Die Abbildungen \ref{fig:mean_rand} bis \ref{fig:mean_duck} zeigen die Ergebnisse der Dekonvolution ohne Rauschen, wobei der Mittelwertfilter als PSF verwendet wurde.
+
+\paragraph{Bewertung:} 
+Die Ergebnisse zeigen, dass die Wahl des Startbildes einen Einfluss auf die Qualität der Rekonstruktion hat. Die \textit{Random Guess}-Initialisierung führt zu deutlich sichtbaren Artefakten im rekonstruierten Bild. Dagegen liefern sowohl die \textit{Gray Guess}- als auch die \textit{Blurred Guess}-Variante deutlich bessere Resultate mit wenigen Artefakten. Bei der \textit{Duck Guess}-Initialisierung ist noch ein Teil des Donald-Duck-Bildes in der Rekonstruktion erkennbar, was die Qualität beeinträchtigt. \\
+
+\noindent
+Die Initialisierung erfolgte mit verschiedenen Startbildern:
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_mean_random.png}{Random Guess Estimation}{fig:mean_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_mean_gray.png}{Gray Guess Estimation}{fig:mean_gray}{\centering}
+\end{minipage}
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_mean_blurred.png}{Blurred Image Guess Estimation}{fig:mean_blurred}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_mean_donaldDuck.png}{Duck Image Guess Estimation}{fig:mean_duck}{\centering}
+\end{minipage}
+
+
+\newpage
+\subsection{Gauß-Filter als PSF}
+
+\subsubsection{Originalbilder}
+
+In Abbildung \ref{fig:original_2} und \ref{fig:gauss_blurred_1} sind die Ausgangsbilder dargestellt, welche als Basis für diesen Test dienten. Das erste Bild stellt das Originalbild dar. Dieses wurde anschließend mit einem Gauß-Filter gefaltet, um eine Unschärfe zu erzeugen.
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/original.png}{Originalbild}{fig:original_2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/gauss_blurred.png}{Mit Gaussfilter (PSF) gefiltert}{fig:gauss_blurred_1}{\centering}
+\end{minipage}
+
+\subsubsection{Restaurierte Bilder ohne Rauschen}
+
+Bei Verwendung eines Gauß-Kernels als PSF zeigen sich (Abbildungen \ref{fig:gauss_rand} bis \ref{fig:gauss_duck}) ähnliche Tendenzen wie beim Mittelwertfilter. 
+
+\paragraph{Bewertung:}
+Auch beim Gauß-Filter hängt die Qualität der Rekonstruktion stark von der Initialisierung ab. Die \textit{Random Guess}-Variante zeigt erneut viele Artefakte. \textit{Gray Guess} und \textit{Blurred Guess} liefern brauchbare Ergebnisse, wirken jedoch etwas verschwommener als beim Mittelwertfilter. Bei der \textit{Duck Guess}-Initialisierung bleibt das ursprüngliche Donald-Duck-Motiv deutlich sichtbar, was zu einer fehlerhaften Rekonstruktion führt.
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_gauss_random.png}{Random Guess Estimation}{fig:gauss_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_gauss_gray.png}{Gray Guess Estimation}{fig:gauss_gray}{\centering}
+\end{minipage}
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_gauss_blurred.png}{Blurred Image Guess Estimation}{fig:gauss_blurred}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_gauss_donaldDuck.png}{Duck Image Guess Estimation}{fig:gauss_duck}{\centering}
+\end{minipage}
+
+
+
+
+\newpage
+\subsection{Horizontal-Filter als PSF}
+
+\subsubsection{Originalbilder}
+
+Die Originalbilder wurden mithilfe eines horizontalen PSFs gefiltert. Dabei wird vor allem horizontale Information verschmiert, wodurch vertikale Kanten stärker betroffen sind.
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/original.png}{Originalbild}{fig:original}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/horizontal_blurred.png}{Mit horizontalem Filter (PSF) gefiltert}{fig:mean_blur}{\centering}
+\end{minipage}
+
+\subsubsection{Restaurierte Bilder ohne Rauschen}
+
+\paragraph{Bewertung:}
+Die Ergebnisse zeigen, dass der horizontale PSF erwartungsgemäß zu vertikalen Artefakten in der Rekonstruktion führt. Die \textit{Random Guess}-Initialisierung resultiert erneut in vielen Störungen, wobei ein vertikales Muster erkennbar ist. \textit{Gray Guess} und \textit{Blurred Guess} liefern vergleichbare, aber durch vertikale Streifen beeinträchtigte Resultate. Die \textit{Duck Guess}-Initialisierung führt zu einem besonders unscharfen Ergebnis, bei dem die Struktur des Entenbildes noch erkennbar, aber deutlich verschmiert ist.
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_horizontal_random.png}{Random Guess Estimation}{fig:horizontal_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_horizontal_gray.png}{Gray Guess Estimation}{fig:horizontal_gray}{\centering}
+\end{minipage}
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_horizontal_blurred.png}{Blurred Image Guess Estimation}{fig:horizontal_blurred}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_horizontal_donaldDuck.png}{Duck Image Guess Estimation}{fig:horizontal_duck}{\centering}
+\end{minipage}
+
+
+
+
+\subsection{Diagonal-Filter als PSF}
+
+\subsubsection{Originalbilder}
+
+Durch Anwendung eines diagonalen PSFs wird Bildinformation entlang einer Diagonale verschmiert, was zu einer Richtungsunschärfe führt.
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/original.png}{Originalbild}{fig:original}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/diagonal_blurred.png}{Mit Mittelwertfilter (PSF) gefiltert}{fig:mean_blur}{\centering}
+\end{minipage}
+
+
+\subsubsection{Restaurierte Bilder ohne Rauschen}
+
+\paragraph{Bewertung:}
+Die Ergebnisse ähneln jenen des horizontalen PSFs, jedoch treten die Artefakte entsprechend der diagonalen Verschmierungsrichtung auf. Bei \textit{Random Guess} zeigen sich deutliche diagonale Muster und Artefakte. \textit{Gray Guess} und \textit{Blurred Guess} liefern insgesamt stabile, aber leicht diagonale Streifen aufweisende Resultate. Die \textit{Duck Guess}-Initialisierung führt erneut zu einem stark verschmierten Bild, bei dem die ursprüngliche Struktur nur noch schwach zu erkennen ist.
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_diagonal_random.png}{Random Guess Estimation}{fig:diagonal_rand}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_diagonal_gray.png}{Gray Guess Estimation}{fig:diagonal_gray}{\centering}
+\end{minipage}
+
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_diagonal_blurred.png}{Blurred Image Guess Estimation}{fig:diagonal_blurred}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.5\textwidth}
+    \includeImgNoUrl{H}{width=0.7\linewidth}{img/restored_diagonal_donaldDuck.png}{Duck Image Guess Estimation}{fig:diagonal_duck}{\centering}
+\end{minipage}

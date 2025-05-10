@@ -1,0 +1,153 @@
+\section{Test mit zusätzlichem Rauschen}
+
+In diesem Test wurde untersucht, wie sich zusätzliches Rauschen auf die Qualität der Bildrekonstruktion auswirkt. Ausgangspunkt waren Bilder, die mit verschiedenen Unschärfefiltern (Mittelwert-, Gauß-, horizontaler und diagonaler Filter) verschwommen wurden. Anschließend wurde diesen Bildern künstlich Rauschen mit unterschiedlicher Intensität (Standardabweichung 2, 5 und 10) hinzugefügt. Die Ergebnisse der Rekonstruktion wurden anschließend bewertet und verglichen.
+
+\newpage
+\subsection{Mittelwertfilter als PSF}
+
+\subsubsection{Bilder mit Rauschen}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_mean_2.png}{Verrauschtes Bild mit Mittelwertfilter (Noise $\sigma = 2$)}{fig:noisy_mean_2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_mean_5.png}{Verrauschtes Bild mit Mittelwertfilter (Noise $\sigma = 5$)}{fig:noisy_mean_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_mean_10.png}{Verrauschtes Bild mit Mittelwertfilter (Noise $\sigma = 10$)}{fig:noisy_mean_10}{\centering}
+\end{minipage}
+
+\subsubsection{Rekonstruierte Bilder}
+
+\paragraph{Bewertung:}
+Bei geringer Rauschintensität (Standardabweichung 2) gelingt die Rekonstruktion noch relativ gut. Ab einer Standardabweichung von 5 wird das Rauschen deutlich sichtbar, obwohl die Bildschärfe noch verbessert wird. Bei hoher Rauschintensität (Standardabweichung 10) dominiert das Rauschen das Ergebnis, wodurch die Rekonstruktion insgesamt ziemlich unbrauchbar wird.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_mean_2.png}{Rekonstruiertes Bild bei Noise $\sigma = 2$}{fig:restored_mean_2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_mean_5.png}{Rekonstruiertes Bild bei Noise $\sigma = 5$}{fig:restored_mean_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_mean_10.png}{Rekonstruiertes Bild bei Noise $\sigma = 10$}{fig:restored_mean_10}{\centering}
+\end{minipage}
+
+
+
+
+\subsection{Gauß-Filter als PSF}
+
+\subsubsection{Bilder mit Rauschen}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_gauss_2.png}{Verrauschtes Bild mit Gaußfilter (Noise $\sigma = 2$)}{fig:noisy_gauss_2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_gauss_5.png}{Verrauschtes Bild mit Gaußfilter (Noise $\sigma = 5$)}{fig:noisy_gauss_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_gauss_10.png}{Verrauschtes Bild mit Gaußfilter (Noise $\sigma = 10$)}{fig:noisy_gauss_10}{\centering}
+\end{minipage}
+
+\subsubsection{Rekonstruierte Bilder}
+
+\paragraph{Bewertung:}
+Ähnlich wie beim Mittelwertfilter zeigt sich bei geringer Rauschintensität (Standardabweichung 2) eine noch gute Rekonstruktion. Bei einer Standardabweichung von 5 treten ebenfalls deutlich sichtbare Rauschartefakte auf, jedoch sind diese etwas größer als beim Mittelwertfilter. Bei einer Standardabweichung von 10 wird das Rauschen noch dominanter.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_gauss_2.png}{Rekonstruiertes Bild bei Noise $\sigma = 2$}{fig:restored_gauss_2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_gauss_5.png}{Rekonstruiertes Bild bei Noise $\sigma = 5$}{fig:restored_gauss_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_gauss_10.png}{Rekonstruiertes Bild bei Noise $\sigma = 10$}{fig:restored_gauss_10}{\centering}
+\end{minipage}
+
+
+
+
+\subsection{Horizontal-Filter als PSF}
+
+\subsubsection{Bilder mit Rauschen}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_horizontal_2.png}{Verrauschtes Bild mit Horizontalfilter (Noise $\sigma = 2$)}{fig:noisy_horizontal_2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_horizontal_5.png}{Verrauschtes Bild mit Horizontalfilter (Noise $\sigma = 5$)}{fig:noisy_horizontal_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_horizontal_10.png}{Verrauschtes Bild mit Horizontalfilter (Noise $\sigma = 10$)}{fig:noisy_horizontal_10}{\centering}
+\end{minipage}
+
+\subsubsection{Rekonstruierte Bilder}
+
+\paragraph{Bewertung:}
+Bei einer Standardabweichung von 2 zeigt sich noch eine gute Rekonstruktion. Mit einer Standardabweichung von 5 bleibt das Ergebnis akzeptabel, obwohl Rauschartefakte zunehmen. Bei einer Standardabweichung von 10 überwiegen die Artefakte, ähnlich wie beim Mittelwertfilter, wobei vor allem vertikale Störungen sichtbar werden.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_horizontal_2.png}{Rekonstruiertes Bild bei Noise $\sigma = 2$}{fig:restored_horizontal_2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_horizontal_5.png}{Rekonstruiertes Bild bei Noise $\sigma = 5$}{fig:restored_horizontal_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_horizontal_10.png}{Rekonstruiertes Bild bei Noise $\sigma = 10$}{fig:restored_horizontal_10}{\centering}
+\end{minipage}
+
+
+
+
+\subsection{Diagonal-Filter als PSF}
+
+\subsubsection{Bilder mit Rauschen}
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_diagonal_2.png}{Verrauschtes Bild mit Diagonalfilter (Noise $\sigma = 2$)}{fig:noisy_diagonal_2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_diagonal_5.png}{Verrauschtes Bild mit Diagonalfilter (Noise $\sigma = 5$)}{fig:noisy_diagonal_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/noisy_blurred_diagonal_10.png}{Verrauschtes Bild mit Diagonalfilter (Noise $\sigma = 10$)}{fig:noisy_diagonal_10}{\centering}
+\end{minipage}
+
+\subsubsection{Rekonstruierte Bilder}
+
+\paragraph{Bewertung:}
+Bei einer Standardabweichung von 2 ist die Rekonstruktion noch gut. Mit einer Standardabweichung von 5 bleibt das Ergebnis akzeptabel, besonders im Vergleich zum Ausgangsbild. Bei einer Standardabweichung von 10 überwiegen die Rauschartefakte und die Qualität der Rekonstruktion nimmt deutlich ab.
+
+\noindent
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_diagonal_2.png}{Rekonstruiertes Bild bei Noise $\sigma = 2$}{fig:restored_diagonal_2}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_diagonal_5.png}{Rekonstruiertes Bild bei Noise $\sigma = 5$}{fig:restored_diagonal_5}{\centering}
+\end{minipage}
+%
+\begin{minipage}[t]{0.33\textwidth}
+    \includeImgNoUrl{H}{width=0.98\linewidth}{img/restored_noisy_blurred_diagonal_10.png}{Rekonstruiertes Bild bei Noise $\sigma = 10$}{fig:restored_diagonal_10}{\centering}
+\end{minipage}

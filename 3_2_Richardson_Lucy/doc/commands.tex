@@ -1,0 +1,63 @@
+\newcommand{\includeImgFloat}[7]{
+    \begin{wrapfigure}{#1}{#2}
+        \includegraphics[width=\linewidth]{#3}
+        \caption[#4]{#4\footnotemark}
+        \label{#6}
+    \end{wrapfigure}
+    \footnotetext{Quelle: \url{#5} (#7)}
+}
+
+\newcommand{\includeImg}[8]{
+    \begin{figure}[#1]
+        #8
+        \includegraphics[#2]{#3}
+        \caption[#4]{#4\footnotemark}
+        \label{#6}
+    \end{figure}
+    \footnotetext{Quelle: \url{#5} (#7)}
+}
+
+\newcommand{\includeImgNoUrl}[6]{
+    \begin{figure}[#1]
+        #6
+        \includegraphics[#2]{#3}
+        \caption[#4]{#4}
+        \label{#5}
+    \end{figure}
+}
+
+\newcommand{\includeImgNoUrlAsTable}[6]{
+    \begin{table}[#1]
+        #6
+        \includegraphics[#2]{#3}
+        \caption[#4]{#4}
+        \label{#5}
+    \end{table}
+}
+
+\newcommand{\subsubsubsection}[1]{
+    \vspace{0.2cm}
+    \noindent
+    \textbf{\underline{#1}}
+    \noindent
+    \vspace{0.1cm}
+}
+
+\newcommand{\includeProtoFile}[4]{
+    \lstinputlisting[language=protobuf2, caption={#3}, label={#4}]{#2}
+}
+
+\newcommand{\includeGoFile}[4]{
+    \lstinputlisting[language=Go, caption={#3}, label={#4}]{#2}
+}
+
+\newcommand{\textbox}[1]{
+    \noindent
+    \fbox{
+        \parbox{\linewidth}{
+            \begin{center}
+                #1
+            \end{center}
+        }
+    }
+}
